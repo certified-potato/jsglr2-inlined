@@ -110,7 +110,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
     private static final String JAVA_8_BENCHMARK_INPUT_PATH_STRING =
         System.getProperty(TestSet.class.getCanonicalName() + ".javaInputPath",
-            "/Users/Jasper/git/spoofax-releng/mb-rep/org.spoofax.terms");
+            "/home/potato/Documents/Projects/RP/spoofax/mb-rep/org.spoofax.terms");
 
     private static final TestSetParseTableFromATerm JAVA_8_PARSE_TABLE =
         new TestSetParseTableFromATerm("Java8_SLR", true);
@@ -128,16 +128,16 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
     public static final TestSetWithParseTable<String[], IncrementalStringInput> java8IncrementalGit =
         new TestSetWithParseTable<>("java8Incremental", JAVA_8_PARSE_TABLE,
-            new TestSetIncrementalGitInput("/home/maarten/git/tmp/mb-rep", "java", 50));
+            new TestSetIncrementalGitInput("/home/potato/Documents/Projects/RP/spoofax/mb-rep", "java", 50));
 
 
     public static final TestSetWithParseTable<String[], IncrementalStringInput> ocamlIncrementalGit =
         new TestSetWithParseTable<>("OCaml-incremental-git", new TestSetParseTableFromATerm("OCaml", true),
-            new TestSetIncrementalGitInput("/home/maarten/git/tmp/google-drive-ocamlfuse", "ml", 50));
+            new TestSetIncrementalGitInput("/home/potato/Documents/Projects/RP/jsglr2evaluation-data/tools/ocamlfuse", "ml", 50));
 
 
     private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING = System.getProperty(
-        TestSet.class.getCanonicalName() + ".webDSLInputPath", "/Users/Jasper/Desktop/jsglr2benchmarks/webdsl");
+        TestSet.class.getCanonicalName() + ".webDSLInputPath", "/home/potato/Documents/Projects/RP/scripts/WebDSL.tbl");
 
     public static TestSetWithParseTable<String, StringInput> webDSL =
         new TestSetWithParseTable<>("webdsl", new TestSetParseTableFromATerm("WebDSL", true),
