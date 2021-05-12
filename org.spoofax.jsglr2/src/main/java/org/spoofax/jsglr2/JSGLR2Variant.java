@@ -117,6 +117,25 @@ public class JSGLR2Variant {
             && (imploder == ImploderVariant.TokenizedRecursive) == (tokenizer == TokenizerVariant.Null);
     }
 
+
+    static class RecoveryVariant extends JSGLR2Variant {
+
+        public RecoveryVariant() {
+            super(new ParserVariant(ActiveStacksRepresentation.standard(), ForActorStacksRepresentation.standard(),
+                    ParseForestRepresentation.standard(), ParseForestConstruction.standard(),
+                    StackRepresentation.Hybrid, Reducing.Basic, true), ImploderVariant.standard(),
+                    TokenizerVariant.standard());
+        }
+
+        @Override
+        public JSGLR2<IStrategoTerm> getJSGLR2(IParseTable parseTable) {
+            return new JSGLR2RecoveryInlined(parseTable);
+        }
+        
+        
+
+    }
+
     public enum Preset {
         // @formatter:off
         standard(
@@ -145,18 +164,18 @@ public class JSGLR2Variant {
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
     
-        recovery(
-            new JSGLR2Variant(
-                new ParserVariant(
-                    ActiveStacksRepresentation.standard(),
-                    ForActorStacksRepresentation.standard(),
-                    ParseForestRepresentation.standard(),
-                    ParseForestConstruction.standard(),
-                    StackRepresentation.Hybrid,
-                    Reducing.Basic,
-                    true),
-                ImploderVariant.standard(),
-                TokenizerVariant.standard())),
+        recovery( new JSGLR2Variant.RecoveryVariant()),
+            // new JSGLR2Variant(
+            //     new ParserVariant(
+            //         ActiveStacksRepresentation.standard(),
+            //         ForActorStacksRepresentation.standard(),
+            //         ParseForestRepresentation.standard(),
+            //         ParseForestConstruction.standard(),
+            //         StackRepresentation.Hybrid,
+            //         Reducing.Basic,
+            //         true),
+            //     ImploderVariant.standard(),
+            //     TokenizerVariant.standard())),
 
         recoveryElkhound(
             new JSGLR2Variant(

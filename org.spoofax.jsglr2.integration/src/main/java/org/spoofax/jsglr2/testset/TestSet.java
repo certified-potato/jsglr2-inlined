@@ -137,7 +137,7 @@ public class TestSet<ContentType, Input extends TestInput<ContentType>> {
 
 
     private static final String WEBDSL_BENCHMARK_INPUT_PATH_STRING = System.getProperty(
-        TestSet.class.getCanonicalName() + ".webDSLInputPath", "/home/potato/Documents/Projects/RP/scripts/WebDSL.tbl");
+        TestSet.class.getCanonicalName() + ".webDSLInputPath", "/home/potato/Documents/Projects/RP/jsglr2evaluation/parsetables/WebDSL.tbl");
 
     public static TestSetWithParseTable<String, StringInput> webDSL =
         new TestSetWithParseTable<>("webdsl", new TestSetParseTableFromATerm("WebDSL", true),
