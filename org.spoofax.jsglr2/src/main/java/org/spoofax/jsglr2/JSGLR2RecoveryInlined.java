@@ -3,10 +3,8 @@ package org.spoofax.jsglr2;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.imploder.TokenizeResult;
 import org.spoofax.jsglr2.imploder.TokenizedStrategoTermImploder;
 import org.spoofax.jsglr2.inputstack.InputStack;
-import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parser;
@@ -22,20 +20,17 @@ import org.spoofax.jsglr2.recovery.RecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryReduceActionFilter;
 import org.spoofax.jsglr2.recovery.RecoveryReducerOptimized;
 import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.reducing.ReducerOptimized;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
-import org.spoofax.jsglr2.tokens.StubTokenizer;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
     
     Parser parser;
     TokenizedStrategoTermImploder imploder = new TokenizedStrategoTermImploder();
-    StubTokenizer tokenizer = new StubTokenizer();
     
     public JSGLR2RecoveryInlined(IParseTable table) {
         parser = new Parser<>(
@@ -70,10 +65,10 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
         ParseResult parse = parser.parse(request);
         if (parse instanceof ParseSuccess<?>) {
             ParseSuccess<?> suc = (ParseSuccess<?>) parse;
-            ImplodeResult implode = (ImplodeResult) imploder.implode(request, suc.parseResult);
-            TokenizeResult tokens = tokenizer.tokenize(request, (Tokens) implode.intermediateResult());
-            suc.postProcessMessages(tokens.tokens);
-            return new JSGLR2Success<IStrategoTerm>(request, (IStrategoTerm) implode.ast(), tokens.tokens, implode.isAmbiguous(), suc.messages);
+            ImplodeResult<Tokens, ?, ?> implode = (ImplodeResult) imploder.implode(request, suc.parseResult);
+            Tokens tokens = implode.intermediateResult();
+            suc.postProcessMessages(tokens);
+            return new JSGLR2Success<IStrategoTerm>(request, (IStrategoTerm) implode.ast(), tokens, implode.isAmbiguous(), suc.messages);
         } else if (parse instanceof ParseFailure<?>) {
             ParseFailure<?> fail = (ParseFailure<?>) parse;
             return new JSGLR2Failure<>(request, fail, fail.messages);
