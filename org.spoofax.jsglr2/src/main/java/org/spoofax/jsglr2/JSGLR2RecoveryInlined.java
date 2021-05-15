@@ -5,7 +5,10 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TokenizedStrategoTermImploder;
 import org.spoofax.jsglr2.inputstack.InputStack;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
+import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
@@ -25,12 +28,21 @@ import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
 import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
+import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
     
-    Parser parser;
-    TokenizedStrategoTermImploder imploder = new TokenizedStrategoTermImploder();
+    Parser<HybridParseForest,
+    HybridDerivation,
+    HybridParseNode,
+    HybridStackNode<HybridParseForest>,
+    InputStack,
+    RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>,
+    HybridStackManager<HybridParseForest, HybridDerivation, HybridParseNode, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>>,
+    ReduceManager<HybridParseForest, HybridDerivation, HybridParseNode, HybridStackNode<HybridParseForest>, InputStack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>>>
+    parser;
+    TokenizedStrategoTermImploder<HybridParseForest, HybridParseNode, HybridDerivation> imploder = new TokenizedStrategoTermImploder<HybridParseForest, HybridParseNode, HybridDerivation>();
     
     public JSGLR2RecoveryInlined(IParseTable table) {
         parser = new Parser<>(
@@ -56,16 +68,16 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
     }
     
     @Override
-    public void attachObserver(IParserObserver<?, ?, ?, ?, ?> observer) {
+    public void attachObserver(IParserObserver observer) {
         parser.observing().attachObserver(observer);
     }
 
     @Override
     public JSGLR2Result<IStrategoTerm> parseResult(JSGLR2Request request) {
-        ParseResult parse = parser.parse(request);
+        ParseResult<HybridParseForest> parse = parser.parse(request);
         if (parse instanceof ParseSuccess<?>) {
-            ParseSuccess<?> suc = (ParseSuccess<?>) parse;
-            ImplodeResult<Tokens, ?, ?> implode = (ImplodeResult) imploder.implode(request, suc.parseResult);
+            ParseSuccess<HybridParseForest> suc = (ParseSuccess<HybridParseForest>) parse;
+            ImplodeResult<Tokens, Void, IStrategoTerm> implode = imploder.implode(request, suc.parseResult);
             Tokens tokens = implode.intermediateResult();
             suc.postProcessMessages(tokens);
             return new JSGLR2Success<IStrategoTerm>(request, (IStrategoTerm) implode.ast(), tokens, implode.isAmbiguous(), suc.messages);
