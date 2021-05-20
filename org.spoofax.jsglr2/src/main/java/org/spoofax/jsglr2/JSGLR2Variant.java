@@ -163,19 +163,20 @@ public class JSGLR2Variant {
                     false),
                 ImploderVariant.standard(),
                 TokenizerVariant.standard())),
-    
-        recovery( new JSGLR2Variant.RecoveryVariant()),
-            // new JSGLR2Variant(
-            //     new ParserVariant(
-            //         ActiveStacksRepresentation.standard(),
-            //         ForActorStacksRepresentation.standard(),
-            //         ParseForestRepresentation.standard(),
-            //         ParseForestConstruction.standard(),
-            //         StackRepresentation.Hybrid,
-            //         Reducing.Basic,
-            //         true),
-            //     ImploderVariant.standard(),
-            //     TokenizerVariant.standard())),
+
+        recoveryInlined( new JSGLR2Variant.RecoveryVariant()),
+        recovery(
+             new JSGLR2Variant(
+                 new ParserVariant(
+                     ActiveStacksRepresentation.standard(),
+                     ForActorStacksRepresentation.standard(),
+                     ParseForestRepresentation.standard(),
+                     ParseForestConstruction.standard(),
+                     StackRepresentation.Hybrid,
+                     Reducing.Basic,
+                     true),
+                 ImploderVariant.standard(),
+                 TokenizerVariant.standard())),
 
         recoveryElkhound(
             new JSGLR2Variant(

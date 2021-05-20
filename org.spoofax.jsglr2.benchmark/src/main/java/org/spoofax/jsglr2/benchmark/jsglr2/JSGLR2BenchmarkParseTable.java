@@ -6,8 +6,10 @@ import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.integration.IntegrationVariant;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
 import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.parser.ParserVariant;
 import org.spoofax.jsglr2.reducing.Reducing;
@@ -55,7 +57,7 @@ public abstract class JSGLR2BenchmarkParseTable extends JSGLR2Benchmark<String, 
     }
 
     @Override protected Object action(Blackhole bh, StringInput input) throws ParseException {
-        return jsglr2.parser.parseUnsafe(input.content, null);
+        return ((IParser<IParseForest>) jsglr2.parser()).parseUnsafe(input.content, null);
     }
 
 }

@@ -21,7 +21,7 @@ public class JSGLR2BenchmarkExternal extends JSGLR2Benchmark<String, StringInput
         setTestSetReader(new BenchmarkTestSetWithParseTableReader<>(testSet));
     }
 
-    @Param({ "standard", "elkhound", "recovery", "incremental", "recoveryElkhound", "recoveryIncremental" }) JSGLR2Variant.Preset variant;
+    @Param({ "standard", "elkhound", "recovery", "incremental", "recoveryElkhound", "recoveryIncremental", "recoveryInlined" }) JSGLR2Variant.Preset variant;
 
     @Param({ "false", "true" }) public boolean implode;
 
@@ -37,7 +37,7 @@ public class JSGLR2BenchmarkExternal extends JSGLR2Benchmark<String, StringInput
         if(implode)
             return jsglr2.parseUnsafe(input.content);
         else
-            return jsglr2.parser.parseUnsafe(input.content);
+            return jsglr2.parser().parseUnsafe(input.content);
     }
 
 }

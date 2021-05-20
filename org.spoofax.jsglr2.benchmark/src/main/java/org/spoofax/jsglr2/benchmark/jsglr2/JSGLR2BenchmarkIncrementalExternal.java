@@ -6,6 +6,7 @@ import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.infra.Blackhole;
 import org.spoofax.jsglr2.benchmark.BenchmarkTestSetWithParseTableReader;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.ParseException;
 import org.spoofax.jsglr2.testset.TestSet;
 import org.spoofax.jsglr2.testset.TestSetWithParseTable;
@@ -63,7 +64,7 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
                 String s = input.content[i > 0 ? 1 : 0];
                 if(s == null)
                     return null;
-                return jsglr2.parser.parseUnsafe(s, null, prevString.get(input), prevParse.get(input));
+                return ((IParser<IParseForest>) jsglr2.parser()).parseUnsafe(s, null, prevString.get(input), prevParse.get(input));
             }
 
             String previousInput = null;
@@ -74,7 +75,7 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
                     if(content == null)
                         continue;
                     bh.consume(
-                        previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
+                        previousResult = ((IParser<IParseForest>) jsglr2.parser()).parseUnsafe(content, null, previousInput, previousResult));
                     previousInput = content;
                 }
                 return null;
@@ -84,7 +85,7 @@ public class JSGLR2BenchmarkIncrementalExternal extends JSGLR2BenchmarkIncrement
             for(String content : input.content) {
                 if(content == null)
                     continue;
-                bh.consume(previousResult = jsglr2.parser.parseUnsafe(content, null, previousInput, previousResult));
+                bh.consume(previousResult = ((IParser<IParseForest>) jsglr2.parser()).parseUnsafe(content, null, previousInput, previousResult));
                 previousInput = content;
             }
             return null;

@@ -11,6 +11,7 @@ import org.metaborg.parsetable.query.ProductionToGotoRepresentation;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.infra.Blackhole;
+import org.spoofax.jsglr2.JSGLR2;
 import org.spoofax.jsglr2.JSGLR2Implementation;
 import org.spoofax.jsglr2.benchmark.BaseBenchmark;
 import org.spoofax.jsglr2.imploder.ImploderVariant;
@@ -36,7 +37,7 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
     private TestSetWithParseTableReader<ContentType, Input> testSetReader;
 
     protected IParser<?> parser; // Just parsing
-    protected JSGLR2Implementation<IParseForest, ?, Object, ?, ?, ?> jsglr2; // Parsing, imploding, and tokenization
+    protected JSGLR2<?> jsglr2; // Parsing, imploding, and tokenization
 
     protected void setTestSetReader(TestSetWithParseTableReader<ContentType, Input> testSetReader) {
         super.setTestSetReader(testSetReader);
@@ -56,8 +57,8 @@ public abstract class JSGLR2Benchmark<ContentType, Input extends TestInput<Conte
 
         IParseTable parseTable = variant.parseTable.parseTableReader().read(testSetReader.getParseTableTerm());
 
-        jsglr2 = (JSGLR2Implementation<IParseForest, ?, Object, ?, ?, ?>) variant.jsglr2.getJSGLR2(parseTable);
-        parser = jsglr2.parser;
+        jsglr2 = variant.jsglr2.getJSGLR2(parseTable);
+        parser = jsglr2.parser();
     }
 
     //@formatter:off
