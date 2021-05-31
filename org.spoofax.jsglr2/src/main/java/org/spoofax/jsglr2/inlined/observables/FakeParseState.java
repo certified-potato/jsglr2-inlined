@@ -6,10 +6,11 @@ import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.stack.collections.IActiveStacks;
 import org.spoofax.jsglr2.stack.collections.IForActorStacks;
 
-public class InlinedFakeParseState extends AbstractParseState<InputStack, InlinedFakeStackNode> {
+//TODO: improve this glue
+public class FakeParseState extends AbstractParseState<InputStack, FakeStackNode> {
 
-    protected InlinedFakeParseState(JSGLR2Request request, InputStack inputStack,
-            IActiveStacks<InlinedFakeStackNode> activeStacks, IForActorStacks<InlinedFakeStackNode> forActorStacks) {
+    protected FakeParseState(JSGLR2Request request, InputStack inputStack,
+            IActiveStacks<FakeStackNode> activeStacks, IForActorStacks<FakeStackNode> forActorStacks) {
         super(request, inputStack, activeStacks, forActorStacks);
         // TODO Auto-generated constructor stub
     }

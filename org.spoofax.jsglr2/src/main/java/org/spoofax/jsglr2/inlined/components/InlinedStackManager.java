@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.observables.InlinedFakeDerivation;
-import org.spoofax.jsglr2.inlined.observables.InlinedFakeParseForest;
-import org.spoofax.jsglr2.inlined.observables.InlinedFakeParseNode;
-import org.spoofax.jsglr2.inlined.observables.InlinedFakeParseState;
-import org.spoofax.jsglr2.inlined.observables.InlinedFakeStackNode;
+import org.spoofax.jsglr2.inlined.observables.FakeDerivation;
+import org.spoofax.jsglr2.inlined.observables.FakeParseForest;
+import org.spoofax.jsglr2.inlined.observables.FakeParseNode;
+import org.spoofax.jsglr2.inlined.observables.FakeParseState;
+import org.spoofax.jsglr2.inlined.observables.FakeStackNode;
 import org.spoofax.jsglr2.parseforest.ParseForestManager;
 import org.spoofax.jsglr2.parser.observing.ParserObserving;
 import org.spoofax.jsglr2.stack.StackLink;
@@ -18,38 +18,38 @@ import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class InlinedStackManager {
     
-    protected final ParserObserving<InlinedFakeParseForest, InlinedFakeDerivation, InlinedFakeParseNode, InlinedFakeStackNode, InlinedFakeParseState> observing;
+    protected final ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing;
 
     protected InlinedStackManager(
-        ParserObserving<InlinedFakeParseForest, InlinedFakeDerivation, InlinedFakeParseNode, InlinedFakeStackNode, InlinedFakeParseState> observing) {
+        ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing) {
         this.observing = observing;
     }
 
-    public InlinedFakeStackNode createStackNode(IState state) {
-        InlinedFakeStackNode newStackNode = new InlinedFakeStackNode();
+    public FakeStackNode createStackNode(IState state) {
+        FakeStackNode newStackNode = new FakeStackNode();
 
         observing.notify(observer -> observer.createStackNode(newStackNode));
 
         return newStackNode;
     }
 
-    public StackLink<InlinedFakeParseForest, InlinedFakeStackNode> createStackLink(InlinedFakeParseState parseState, InlinedFakeStackNode from,
-            InlinedFakeStackNode to, InlinedFakeParseForest parseForest) {
-        StackLink<InlinedFakeParseForest, InlinedFakeStackNode> link = from.addLink(to, parseForest);
+    public StackLink<FakeParseForest, FakeStackNode> createStackLink(FakeParseState parseState, FakeStackNode from,
+            FakeStackNode to, FakeParseForest parseForest) {
+        StackLink<FakeParseForest, FakeStackNode> link = from.addLink(to, parseForest);
 
         observing.notify(observer -> observer.createStackLink(link));
 
         return link;
     }
 
-    public void rejectStackLink(StackLink<InlinedFakeParseForest, InlinedFakeStackNode> link) {
+    public void rejectStackLink(StackLink<FakeParseForest, FakeStackNode> link) {
         link.reject();
 
         observing.notify(observer -> observer.rejectStackLink(link));
     }
 
-    public StackLink<InlinedFakeParseForest, InlinedFakeStackNode> findDirectLink(InlinedFakeStackNode from, InlinedFakeStackNode to) {
-        for(StackLink<InlinedFakeParseForest, InlinedFakeStackNode> link : stackLinksOut(from)) {
+    public StackLink<FakeParseForest, FakeStackNode> findDirectLink(FakeStackNode from, FakeStackNode to) {
+        for(StackLink<FakeParseForest, FakeStackNode> link : stackLinksOut(from)) {
             if(link.to == to)
                 return link;
         }
@@ -57,26 +57,26 @@ public class InlinedStackManager {
         return null;
     }
 
-    public List<StackPath<InlinedFakeParseForest, InlinedFakeStackNode>> findAllPathsOfLength(InlinedFakeStackNode stack, int length) {
-        List<StackPath<InlinedFakeParseForest, InlinedFakeStackNode>> paths = new ArrayList<>();
+    public List<StackPath<FakeParseForest, FakeStackNode>> findAllPathsOfLength(FakeStackNode stack, int length) {
+        List<StackPath<FakeParseForest, FakeStackNode>> paths = new ArrayList<>();
 
-        StackPath<InlinedFakeParseForest, InlinedFakeStackNode> pathsOrigin = new EmptyStackPath<>(stack);
+        StackPath<FakeParseForest, FakeStackNode> pathsOrigin = new EmptyStackPath<>(stack);
 
         findAllPathsOfLength(pathsOrigin, length, paths);
 
         return paths;
     }
 
-    private void findAllPathsOfLength(StackPath<InlinedFakeParseForest, InlinedFakeStackNode> path, int length,
-        List<StackPath<InlinedFakeParseForest, InlinedFakeStackNode>> paths) {
+    private void findAllPathsOfLength(StackPath<FakeParseForest, FakeStackNode> path, int length,
+        List<StackPath<FakeParseForest, FakeStackNode>> paths) {
         if(length == 0)
             paths.add(path);
         else {
-            InlinedFakeStackNode lastStackNode = path.head();
+            FakeStackNode lastStackNode = path.head();
 
-            for(StackLink<InlinedFakeParseForest, InlinedFakeStackNode> linkOut : stackLinksOut(lastStackNode)) {
+            for(StackLink<FakeParseForest, FakeStackNode> linkOut : stackLinksOut(lastStackNode)) {
                 if(!linkOut.isRejected()) {
-                    StackPath<InlinedFakeParseForest, InlinedFakeStackNode> extendedPath = new NonEmptyStackPath<>(linkOut, path);
+                    StackPath<FakeParseForest, FakeStackNode> extendedPath = new NonEmptyStackPath<>(linkOut, path);
 
                     findAllPathsOfLength(extendedPath, length - 1, paths);
                 }
@@ -84,20 +84,20 @@ public class InlinedStackManager {
         }
     }
 
-    protected Iterable<StackLink<InlinedFakeParseForest, InlinedFakeStackNode>> stackLinksOut(InlinedFakeStackNode stack) {
+    protected Iterable<StackLink<FakeParseForest, FakeStackNode>> stackLinksOut(FakeStackNode stack) {
         return null;
     }
 
-    public InlinedFakeParseForest[] getParseForests(ParseForestManager<InlinedFakeParseForest, ?, ?, ?, ?> parseForestManager,
-        StackPath<InlinedFakeParseForest, InlinedFakeStackNode> pathBegin) {
-        InlinedFakeParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
+    public FakeParseForest[] getParseForests(ParseForestManager<FakeParseForest, ?, ?, ?, ?> parseForestManager,
+        StackPath<FakeParseForest, FakeStackNode> pathBegin) {
+        FakeParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
 
         if(res != null) {
-            StackPath<InlinedFakeParseForest, InlinedFakeStackNode> path = pathBegin;
+            StackPath<FakeParseForest, FakeStackNode> path = pathBegin;
 
             for(int i = 0; i < pathBegin.length; i++) {
-                NonEmptyStackPath<InlinedFakeParseForest, InlinedFakeStackNode> nonEmptyPath =
-                    (NonEmptyStackPath<InlinedFakeParseForest, InlinedFakeStackNode>) path;
+                NonEmptyStackPath<FakeParseForest, FakeStackNode> nonEmptyPath =
+                    (NonEmptyStackPath<FakeParseForest, FakeStackNode>) path;
 
                 res[i] = nonEmptyPath.link.parseForest;
 

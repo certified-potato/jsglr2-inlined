@@ -12,18 +12,11 @@ import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inputstack.InputStack;
 import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.Disambiguator;
-import org.spoofax.jsglr2.parseforest.IDerivation;
-import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
-import org.spoofax.jsglr2.parseforest.ParseForestManagerFactory;
 import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.AmbiguityDetector;
 import org.spoofax.jsglr2.parser.CycleDetector;
 import org.spoofax.jsglr2.parser.ForShifterElement;
@@ -46,9 +39,6 @@ import org.spoofax.jsglr2.recovery.RecoveryParseReporter;
 import org.spoofax.jsglr2.recovery.RecoveryParseState;
 import org.spoofax.jsglr2.recovery.RecoveryReducerOptimized;
 import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
-import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackManagerFactory;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
 import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
 import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
@@ -87,7 +77,7 @@ public class InlinedParser implements IObservableParser<HybridParseForest, Hybri
     
     @Override public ParseResult<HybridParseForest> parse(JSGLR2Request request, String previousInput,
         HybridParseForest previousResult) {
-        RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState = getParseState(request, previousInput, previousResult);
+        RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState = getParseState(request);
 
         observing.notify(observer -> observer.parseStart(parseState));
 
@@ -130,7 +120,7 @@ public class InlinedParser implements IObservableParser<HybridParseForest, Hybri
             (ParseNodeVisitor<HybridParseForest, HybridDerivation, HybridParseNode>) visitor);
     }
 
-    protected RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> getParseState(JSGLR2Request request, String previousInput, HybridParseForest previousResult) {
+    protected RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> getParseState(JSGLR2Request request) {
         return parseStateFactory.get(request, inputStackFactory.get(request.input), observing);
     }
 

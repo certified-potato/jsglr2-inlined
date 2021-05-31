@@ -3,6 +3,8 @@ package org.spoofax.jsglr2.inlined.components;
 import static org.metaborg.parsetable.characterclasses.ICharacterClass.EOF_INT;
 import static org.metaborg.parsetable.characterclasses.ICharacterClass.MAX_CHAR;
 
+import org.spoofax.jsglr2.parser.Position;
+
 public class InlinedInputStack {
     protected final String inputString;
     protected final int inputLength;
@@ -81,5 +83,13 @@ public class InlinedInputStack {
             return c;
         } else
             return EOF_INT;
+    }
+    
+    public Position safePosition() {
+        return Position.atOffset(inputString(), Math.max(Math.min(offset(), length() - 1), 0));
+    }
+
+    public Integer safeCharacter() {
+        return offset() <= inputString().length() - 1 ? inputString().codePointAt(offset()) : null;
     }
 }
