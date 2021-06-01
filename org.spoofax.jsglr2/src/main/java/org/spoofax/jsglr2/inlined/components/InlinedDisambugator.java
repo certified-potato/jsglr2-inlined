@@ -3,10 +3,6 @@ package org.spoofax.jsglr2.inlined.components;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr2.inlined.components.observables.InlinedDerivation;
-import org.spoofax.jsglr2.inlined.components.observables.InlinedParseForest;
-import org.spoofax.jsglr2.inlined.components.observables.InlinedParseNode;
-import org.spoofax.jsglr2.inlined.components.observables.InlinedParseState;
 import org.spoofax.jsglr2.parseforest.IParseNode;
 
 public class InlinedDisambugator {

@@ -5,28 +5,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.components.observables.InlinedStackNode;
-import org.spoofax.jsglr2.inlined.observables.FakeDerivation;
-import org.spoofax.jsglr2.inlined.observables.FakeParseForest;
-import org.spoofax.jsglr2.inlined.observables.FakeParseNode;
-import org.spoofax.jsglr2.inlined.observables.FakeParseState;
-import org.spoofax.jsglr2.inlined.observables.FakeStackNode;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksArrayList;
-import org.spoofax.jsglr2.stack.collections.IActiveStacks;
-import org.spoofax.jsglr2.stack.collections.IForActorStacks;
+import org.spoofax.jsglr2.inlined.InlinedObserver;
 
-public class InlinedActiveStacks implements IActiveStacks<FakeStackNode> {
-    protected ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing;
+public class InlinedActiveStacks{
+    protected InlinedObserver observing;
     protected ArrayList<InlinedStackNode> activeStacks;
     
-    public InlinedActiveStacks(ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing) {
+    public InlinedActiveStacks(InlinedObserver observing) {
         this.observing = observing;
         this.activeStacks = new ArrayList<>();
     }
 
     public void add(InlinedStackNode stack) {
-        observing.notify(observer -> observer.addActiveStack(stack.getFake()));
+        //observing.notify(observer -> observer.addActiveStack(stack.getFake()));
 
         activeStacks.add(stack);
     }
@@ -48,7 +39,7 @@ public class InlinedActiveStacks implements IActiveStacks<FakeStackNode> {
     }
 
     public InlinedStackNode findWithState(IState state) {
-        observing.notify(observer -> observer.findActiveStackWithState(state));
+        //observing.notify(observer -> observer.findActiveStackWithState(state));
 
         for(InlinedStackNode stack : activeStacks)
             if(stack.state().id() == state.id())
@@ -97,35 +88,5 @@ public class InlinedActiveStacks implements IActiveStacks<FakeStackNode> {
 
     public Iterator<InlinedStackNode> iterator() {
         return activeStacks.iterator();
-    }
-    
-    @Override
-    public void add(FakeStackNode stack) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public FakeStackNode getSingle() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public FakeStackNode findWithState(IState state) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Iterable<FakeStackNode> forLimitedReductions(IForActorStacks<FakeStackNode> forActorStacks) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void addAllTo(IForActorStacks<FakeStackNode> forActorStacks) {
-        // TODO Auto-generated method stub
-        
     }
 }

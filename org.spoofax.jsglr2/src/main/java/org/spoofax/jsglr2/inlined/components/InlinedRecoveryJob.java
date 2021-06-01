@@ -1,9 +1,6 @@
 package org.spoofax.jsglr2.inlined.components;
 
 import java.util.HashMap;
-import java.util.Map;
-
-import org.spoofax.jsglr2.inlined.components.observables.InlinedStackNode;
 
 public class InlinedRecoveryJob {
     public int offset;

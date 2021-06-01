@@ -6,13 +6,7 @@ import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import org.spoofax.jsglr2.inlined.components.observables.InlinedStackNode;
-import org.spoofax.jsglr2.inlined.observables.FakeDerivation;
-import org.spoofax.jsglr2.inlined.observables.FakeParseForest;
-import org.spoofax.jsglr2.inlined.observables.FakeParseNode;
-import org.spoofax.jsglr2.inlined.observables.FakeParseState;
-import org.spoofax.jsglr2.inlined.observables.FakeStackNode;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
+import org.spoofax.jsglr2.inlined.InlinedObserver;
 
 import com.google.common.collect.Iterables;
 
@@ -21,10 +15,10 @@ public class InlinedForActorStacks {
     protected final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
     
     
-    private final ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing;
+    private final InlinedObserver observing;
     protected final Queue<InlinedStackNode> forActorDelayed;
 
-    public InlinedForActorStacks(ParserObserving<FakeParseForest, FakeDerivation, FakeParseNode, FakeStackNode, FakeParseState> observing) {
+    public InlinedForActorStacks(InlinedObserver observing) {
         this.observing = observing;
 
         // TODO: implement priority (see P9707 Section 8.4)
@@ -34,7 +28,7 @@ public class InlinedForActorStacks {
     }
 
     public void add(InlinedStackNode stack) {
-        observing.notify(observer -> observer.addForActorStack(stack.getFake()));
+        //observing.notify(observer -> observer.addForActorStack(stack.getFake()));
 
         if(stack.state().isRejectable())
             forActorDelayed.add(stack);

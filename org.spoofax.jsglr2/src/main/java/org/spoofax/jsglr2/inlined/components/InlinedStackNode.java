@@ -1,11 +1,9 @@
-package org.spoofax.jsglr2.inlined.components.observables;
+package org.spoofax.jsglr2.inlined.components;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.components.InlinedStackLink;
-import org.spoofax.jsglr2.inlined.observables.FakeStackNode;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class InlinedStackNode {
@@ -13,20 +11,11 @@ public class InlinedStackNode {
     // state depends on the parsetable
     public final IState state;
 
-    private FakeStackNode fake = null;
-
     private InlinedStackLink firstLink;
     private ArrayList<InlinedStackLink> otherLinks;
 
     public InlinedStackNode(IState state) {
         this.state = state;
-    }
-
-    public FakeStackNode getFake() {
-        if (fake == null) {
-            fake = new FakeStackNode(this);
-        }
-        return fake;
     }
     
     public IState state() {
@@ -44,6 +33,12 @@ public class InlinedStackNode {
         }
 
         return link;
+    }
+    
+    public InlinedStackLink addLink(InlinedStackNode parent, InlinedParseForest parseNode) {
+        InlinedStackLink link = new InlinedStackLink(this, parent, parseNode);
+
+        return addLink(link);
     }
 
     public Iterable<InlinedStackLink> getLinks() {

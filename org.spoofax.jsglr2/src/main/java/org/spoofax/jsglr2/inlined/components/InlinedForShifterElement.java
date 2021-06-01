@@ -1,7 +1,6 @@
 package org.spoofax.jsglr2.inlined.components;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.components.observables.InlinedStackNode;
 
 public final class InlinedForShifterElement {
     public final InlinedStackNode stack;

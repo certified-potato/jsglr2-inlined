@@ -2,8 +2,6 @@ package org.spoofax.jsglr2.inlined.components;
 
 import java.util.ArrayList;
 
-import org.spoofax.jsglr2.inlined.components.observables.InlinedStackNode;
-
 public class InlinedBacktrackChoicePoint {
     
     public final int offset;
