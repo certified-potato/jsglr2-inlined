@@ -22,9 +22,9 @@ public class CycleDetector
 
     Collection<Message> messages;
     List<ParseNode> spine = new ArrayList<>();
-    public ParseFailureCause failureCause = null;
+    ParseFailureCause failureCause = null;
 
-    public CycleDetector(Collection<Message> messages) {
+    CycleDetector(Collection<Message> messages) {
         this.messages = messages;
     }
 

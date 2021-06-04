@@ -1,48 +1,50 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public class InlinedParseNode {
+class InlinedParseNode implements IParseForest {
     private final int width;
     private final IProduction production;
     private ArrayList<InlinedDerivation> derivations;
 
-    public InlinedParseNode(int width, IProduction production, InlinedDerivation firstDerivation) {
+    InlinedParseNode(int width, IProduction production, InlinedDerivation firstDerivation) {
         this.width = width;
         this.production = production;
         this.derivations = new ArrayList<>();
         derivations.add(firstDerivation);
     }
 
-    public InlinedParseNode(int width, IProduction production) {
+    InlinedParseNode(int width, IProduction production) {
         this(width, production, null);
     }
 
+    @Override
     public int width() {
         return width;
     }
 
-    public IProduction production() {
+    IProduction production() {
         return production;
     }
 
-    public void addDerivation(InlinedDerivation derivation) {
+    void addDerivation(InlinedDerivation derivation) {
         derivations.add(derivation);
     }
 
-    public boolean hasDerivations() {
+    boolean hasDerivations() {
         return !derivations.isEmpty();
     }
 
-    public ArrayList<InlinedDerivation> getDerivations() {
+    ArrayList<InlinedDerivation> getDerivations() {
         return derivations;
     }
 
-    public InlinedDerivation getFirstDerivation() {
+    InlinedDerivation getFirstDerivation() {
         try {
             return derivations.get(0);
         } catch (IndexOutOfBoundsException e) {
@@ -50,16 +52,16 @@ public class InlinedParseNode {
         }
     }
 
-    public boolean isAmbiguous() {
+    boolean isAmbiguous() {
         return derivations.size() > 0;
     }
 
-    public void disambiguate(InlinedDerivation derivation) {
+    void disambiguate(InlinedDerivation derivation) {
         derivations.clear();
         derivations.add(derivation);
     }
 
-    public List<InlinedDerivation> getPreferredAvoidedDerivations() {
+    List<InlinedDerivation> getPreferredAvoidedDerivations() {
         if (!isAmbiguous())
             return Collections.singletonList(getFirstDerivation());
         else {
@@ -96,6 +98,7 @@ public class InlinedParseNode {
         }
     }
 
+    @Override
     public String descriptor() {
         return production().lhs().toString();
     }

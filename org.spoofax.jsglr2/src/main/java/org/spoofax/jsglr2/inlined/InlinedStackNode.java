@@ -1,9 +1,10 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.metaborg.parsetable.states.IState;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 public class InlinedStackNode {
@@ -35,7 +36,7 @@ public class InlinedStackNode {
         return link;
     }
     
-    public InlinedStackLink addLink(InlinedStackNode parent, InlinedParseForest parseNode) {
+    public InlinedStackLink addLink(InlinedStackNode parent, IParseForest parseNode) {
         InlinedStackLink link = new InlinedStackLink(this, parent, parseNode);
 
         return addLink(link);

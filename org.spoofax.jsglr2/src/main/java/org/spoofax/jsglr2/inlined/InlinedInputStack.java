@@ -1,17 +1,18 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import static org.metaborg.parsetable.characterclasses.ICharacterClass.EOF_INT;
 import static org.metaborg.parsetable.characterclasses.ICharacterClass.MAX_CHAR;
 
+import org.metaborg.parsetable.query.IActionQuery;
 import org.spoofax.jsglr2.parser.Position;
 
-public class InlinedInputStack {
+class InlinedInputStack implements IActionQuery {
     protected final String inputString;
     protected final int inputLength;
     protected int currentOffset = 0;
     int currentChar; // Current ASCII char in range [0, MAX_CHAR] or EOF_INT
 
-    public InlinedInputStack(String inputString) {
+    InlinedInputStack(String inputString) {
         this.inputString = inputString;
         this.inputLength = inputString.length();
         currentChar = getChar(currentOffset);
@@ -24,31 +25,32 @@ public class InlinedInputStack {
         return clone;
     }
 
-    public boolean hasNext() {
+    boolean hasNext() {
         return currentOffset <= inputLength;
     }
 
-    public void next() {
+    void next() {
         currentOffset += Character.charCount(currentChar);
         currentChar = getChar(currentOffset);
     }
 
-    public int getChar() {
+    int getChar() {
         return currentChar;
     }
     
-    public String inputString() {
+    String inputString() {
         return inputString;
     }
 
-    public int offset() {
+    int offset() {
         return currentOffset;
     }
 
-    public int length() {
+    int length() {
         return inputLength;
     }
 
+    @Override
     public int actionQueryCharacter() {
         if(currentOffset < inputLength)
             return inputString.codePointAt(currentOffset);
@@ -58,6 +60,7 @@ public class InlinedInputStack {
             return -1;
     }
 
+    @Override
     public int[] actionQueryLookahead(int length) {
         int[] res = new int[length];
         int nextOffset = currentOffset + Character.charCount(getChar(currentOffset));
@@ -73,7 +76,7 @@ public class InlinedInputStack {
         return res;
     }
 
-    public int getChar(int offset) {
+    int getChar(int offset) {
         if(offset < inputLength) {
             int c = inputString.codePointAt(offset);
 
@@ -85,11 +88,11 @@ public class InlinedInputStack {
             return EOF_INT;
     }
     
-    public Position safePosition() {
+    Position safePosition() {
         return Position.atOffset(inputString(), Math.max(Math.min(offset(), length() - 1), 0));
     }
 
-    public Integer safeCharacter() {
+    Integer safeCharacter() {
         return offset() <= inputString().length() - 1 ? inputString().codePointAt(offset()) : null;
     }
 }

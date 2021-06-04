@@ -1,44 +1,43 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.InlinedObserver;
 
-public class InlinedActiveStacks{
-    protected InlinedObserver observing;
-    protected ArrayList<InlinedStackNode> activeStacks;
+class InlinedActiveStacks{
+    InlinedObserver observing;
+    ArrayList<InlinedStackNode> activeStacks;
     
-    public InlinedActiveStacks(InlinedObserver observing) {
+    InlinedActiveStacks(InlinedObserver observing) {
         this.observing = observing;
         this.activeStacks = new ArrayList<>();
     }
 
-    public void add(InlinedStackNode stack) {
+    void add(InlinedStackNode stack) {
         //observing.notify(observer -> observer.addActiveStack(stack.getFake()));
 
         activeStacks.add(stack);
     }
 
-    public boolean isSingle() {
+    boolean isSingle() {
         return activeStacks.size() == 1;
     }
 
-    public InlinedStackNode getSingle() {
+    InlinedStackNode getSingle() {
         return activeStacks.get(0);
     }
 
-    public boolean isEmpty() {
+    boolean isEmpty() {
         return activeStacks.isEmpty();
     }
 
-    public boolean isMultiple() {
+    boolean isMultiple() {
         return activeStacks.size() > 1;
     }
 
-    public InlinedStackNode findWithState(IState state) {
+    InlinedStackNode findWithState(IState state) {
         //observing.notify(observer -> observer.findActiveStackWithState(state));
 
         for(InlinedStackNode stack : activeStacks)
@@ -48,7 +47,7 @@ public class InlinedActiveStacks{
         return null;
     }
 
-    public Iterable<InlinedStackNode> forLimitedReductions(InlinedForActorStacks forActorStacks) {
+    Iterable<InlinedStackNode> forLimitedReductions(InlinedForActorStacks forActorStacks) {
         return () -> new Iterator<InlinedStackNode>() {
 
             int index = 0;
@@ -77,16 +76,16 @@ public class InlinedActiveStacks{
         };
     }
 
-    public void addAllTo(InlinedForActorStacks other) {
+    void addAllTo(InlinedForActorStacks other) {
         for(InlinedStackNode stack : activeStacks)
             other.add(stack);
     }
 
-    public void clear() {
+    void clear() {
         activeStacks.clear();
     }
 
-    public Iterator<InlinedStackNode> iterator() {
+    Iterator<InlinedStackNode> iterator() {
         return activeStacks.iterator();
     }
 }

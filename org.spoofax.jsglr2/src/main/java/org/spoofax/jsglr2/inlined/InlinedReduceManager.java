@@ -1,27 +1,9 @@
-package org.spoofax.jsglr2.inlined.components;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.spoofax.jsglr2.inlined;
 
 import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inputstack.IInputStack;
-import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
-import org.spoofax.jsglr2.parser.AbstractParseState;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.recovery.RecoveryReducerOptimized;
-import org.spoofax.jsglr2.reducing.ReduceActionFilter;
-import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.reducing.ReduceManagerFactory;
-import org.spoofax.jsglr2.reducing.Reducer;
-import org.spoofax.jsglr2.reducing.ReducerFactory;
-import org.spoofax.jsglr2.stack.IStackNode;
-import org.spoofax.jsglr2.stack.StackLink;
-import org.spoofax.jsglr2.stack.paths.StackPath;
 
 public class InlinedReduceManager {
 
@@ -80,7 +62,7 @@ public class InlinedReduceManager {
         for (InlinedStackPath path : stackManager.findAllPathsOfLength(activeStack, reduce.arity())) {
             if (throughLink == null || path.contains(throughLink)) {
                 InlinedStackNode originStack = path.head();
-                InlinedParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
+                IParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
 
                 reducer(parseState, activeStack, originStack, reduce, parseNodes);
             }
@@ -98,7 +80,7 @@ public class InlinedReduceManager {
      * performed.
      */
     protected void reducer(InlinedParseState parseState, InlinedStackNode activeStack, InlinedStackNode originStack,
-            IReduce reduce, InlinedParseForest[] parseForests) {
+            IReduce reduce, IParseForest[] parseForests) {
         int gotoId = originStack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
 
@@ -130,8 +112,20 @@ public class InlinedReduceManager {
             parseState.forActorStacks.add(gotoStack);
         }
 
-        InlinedStackNode finalGotoStack = gotoStack;
-        // observing.notify(observer -> observer.reducer(parseState, activeStack,
-        // originStack, reduce, parseForests, finalGotoStack));
+        //from recoveryObserver
+        if(parseState.isRecovering()) {
+            int quota = parseState.recoveryJob().getQuota(activeStack);
+
+            if(reduce.production().isRecovery()) {
+                quota--;
+
+                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, parseState.inputStack.offset());
+            } else {
+                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack,
+                    parseState.recoveryJob().lastRecoveredOffset(activeStack));
+            }
+
+            parseState.recoveryJob().updateQuota(gotoStack, quota);
+        }
     }
 }

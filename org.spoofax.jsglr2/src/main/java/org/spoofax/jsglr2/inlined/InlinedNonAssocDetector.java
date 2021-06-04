@@ -1,32 +1,24 @@
-package org.spoofax.jsglr2.parser;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.Collection;
 
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
-import org.spoofax.jsglr2.parseforest.IDerivation;
 import org.spoofax.jsglr2.parseforest.IParseForest;
-import org.spoofax.jsglr2.parseforest.IParseNode;
-import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
+import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
-public class NonAssocDetector
-//@formatter:off
-   <ParseForest extends IParseForest,
-    Derivation  extends IDerivation<ParseForest>,
-    ParseNode   extends IParseNode<ParseForest, Derivation>>
-//@formatter:on
-    implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
+public class InlinedNonAssocDetector implements IInlinedParseNodeVisitor {
 
     private final Collection<Message> messages;
 
     private ParseFailureCause.Type failure = null;
 
-    NonAssocDetector(Collection<Message> messages) {
+    public InlinedNonAssocDetector(Collection<Message> messages) {
         this.messages = messages;
     }
 
-    @Override public boolean preVisit(ParseNode parseNode, Position startPosition) {
+    @Override public boolean preVisit(InlinedParseNode parseNode, Position startPosition) {
         if(hasNonAssoc(parseNode)) {
             // Because we return false here, the children of this parseNode are not visited,
             // and the postVisit method will be called on the same parseNode directly after this method returns.
@@ -43,37 +35,38 @@ public class NonAssocDetector
     }
 
 
-    @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
+    @Override public void postVisit(InlinedParseNode parseNode, Position startPosition, Position endPosition) {
         if(failure != null) {
             messages.add(new Message(failure.message, Category.NON_ASSOC, startPosition, endPosition));
             failure = null;
         }
     }
 
-    private boolean hasNonAssoc(ParseNode parseNode) {
-        for(Derivation derivation : parseNode.getDerivations()) {
-            ParseForest[] children = derivation.parseForests();
+    private boolean hasNonAssoc(InlinedParseNode parseNode) {
+        for(InlinedDerivation derivation : parseNode.getDerivations()) {
+            IParseForest[] children = derivation.parseForests();
             if(children.length == 0)
                 continue;
-            ParseForest firstChild = children[0];
-            if(firstChild instanceof IParseNode
-                && derivation.production().isNonAssocWith(((IParseNode<?, ?>) firstChild).production()))
+            IParseForest firstChild = children[0];
+            if(firstChild instanceof InlinedParseNode
+                && derivation.production().isNonAssocWith(((InlinedParseNode) firstChild).production()))
                 return true;
         }
         return false;
     }
 
-    private boolean hasNonNested(ParseNode parseNode) {
-        for(Derivation derivation : parseNode.getDerivations()) {
-            ParseForest[] children = derivation.parseForests();
+    private boolean hasNonNested(InlinedParseNode parseNode) {
+        for(InlinedDerivation derivation : parseNode.getDerivations()) {
+            IParseForest[] children = derivation.parseForests();
             if(children.length == 0)
                 continue;
-            ParseForest lastChild = children[children.length - 1];
-            if(lastChild instanceof IParseNode
-                && derivation.production().isNonNestedWith(((IParseNode<?, ?>) lastChild).production()))
+            IParseForest lastChild = children[children.length - 1];
+            if(lastChild instanceof InlinedParseNode
+                && derivation.production().isNonNestedWith(((InlinedParseNode) lastChild).production()))
                 return true;
         }
         return false;
     }
+
 
 }

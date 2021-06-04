@@ -9,79 +9,43 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.actions.IShift;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.inlined.components.InlinedParseForest;
-import org.spoofax.jsglr2.inputstack.InputStack;
-import org.spoofax.jsglr2.inputstack.InputStackFactory;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parseforest.ParseNodeVisitor;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
-import org.spoofax.jsglr2.parser.AmbiguityDetector;
-import org.spoofax.jsglr2.parser.CycleDetector;
-import org.spoofax.jsglr2.parser.ForShifterElement;
-import org.spoofax.jsglr2.parser.IObservableParser;
-import org.spoofax.jsglr2.parser.IParseReporter;
 import org.spoofax.jsglr2.parser.IParser;
-import org.spoofax.jsglr2.parser.NonAssocDetector;
 import org.spoofax.jsglr2.parser.ParseException;
-import org.spoofax.jsglr2.parser.ParseReporterFactory;
-import org.spoofax.jsglr2.parser.ParseStateFactory;
-import org.spoofax.jsglr2.parser.failure.IParseFailureHandler;
-import org.spoofax.jsglr2.parser.failure.ParseFailureHandlerFactory;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.RecoveryDisambiguator;
-import org.spoofax.jsglr2.recovery.RecoveryParseFailureHandler;
-import org.spoofax.jsglr2.recovery.RecoveryParseReporter;
-import org.spoofax.jsglr2.recovery.RecoveryParseState;
-import org.spoofax.jsglr2.recovery.RecoveryReducerOptimized;
-import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
+import org.spoofax.terms.util.NotImplementedException;
 
-public class InlinedParser implements IParser<InlinedParseForest> {
+public class InlinedParser implements IParser<IParseForest> {
 
-    protected final InputStackFactory<InputStack> inputStackFactory;
-    protected final ParseStateFactory<HybridParseForest, HybridDerivation, HybridParseNode, InputStack, HybridStackNode<HybridParseForest>, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> parseStateFactory;
+    protected final InlinedObserver observing = new InlinedObserver();
     protected final IParseTable parseTable;
-    protected final HybridStackManager<HybridParseForest, HybridDerivation, HybridParseNode, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> stackManager;
-    protected final HybridParseForestManager<HybridStackNode<HybridParseForest>, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> parseForestManager;
-    public final ReduceManager<HybridParseForest, HybridDerivation, HybridParseNode, HybridStackNode<HybridParseForest>, InputStack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> reduceManager;
-    protected final IParseFailureHandler<HybridParseForest, HybridStackNode<HybridParseForest>, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> failureHandler;
-    protected final IParseReporter<HybridParseForest, HybridDerivation, HybridParseNode, HybridStackNode<HybridParseForest>, InputStack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> reporter;
-    
-    
+    protected final InlinedStackManager stackManager;
+    protected final InlinedParseForestManager parseForestManager;
+    public final InlinedReduceManager reduceManager;
+    protected final InlinedParseFailureHandler failureHandler;
+    protected final InlinedParseReporter reporter;
+
     public InlinedParser(IParseTable table) {
-        this.inputStackFactory = InputStack::new;
-        this.parseStateFactory = RecoveryParseState.factory(
-                new ActiveStacksFactory(ActiveStacksRepresentation.standard()),
-                new ForActorStacksFactory(ForActorStacksRepresentation.standard()));
-        this.parseTable = table; 
-        this.stackManager = new HybridStackManager<>(observing);
-        this.parseForestManager = new HybridParseForestManager<>(/* observing, */ new RecoveryDisambiguator<>());
-        this.reduceManager = new ReduceManager<>(table, stackManager, parseForestManager, RecoveryReducerOptimized.factoryRecoveryOptimized());
-        ParseFailureHandlerFactory<HybridParseForest, HybridDerivation, HybridParseNode, HybridStackNode<HybridParseForest>, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> rpfhf = RecoveryParseFailureHandler.factory();
-        this.failureHandler = rpfhf.get(observing);
-        ParseReporterFactory<HybridParseForest, HybridDerivation, HybridParseNode, HybridStackNode<HybridParseForest>, InputStack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>>> rf = RecoveryParseReporter.factory();
-        this.reporter = rf.get(parseForestManager);   
+        parseTable = table;
+        stackManager = new InlinedStackManager(observing);
+        parseForestManager = new InlinedParseForestManager(observing);
+        reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager);
+        failureHandler = new InlinedParseFailureHandler(observing);
+        reporter = new InlinedParseReporter();
     }
-    
-    @Override public ParseResult<InlinedParseForest> parse(JSGLR2Request request, String previousInput,
-            InlinedParseForest previousResult) {
-        RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState = getParseState(request);
 
-        //observing.notify(observer -> observer.parseStart(parseState));
+    @Override
+    public ParseResult<IParseForest> parse(JSGLR2Request request, String previousInput, IParseForest previousResult) {
+        InlinedParseState parseState = getParseState(request);
 
-        HybridStackNode<HybridParseForest> initialStackNode = stackManager.createInitialStackNode(parseTable.getStartState());
+        // observing.notify(observer -> observer.parseStart(parseState));
+
+        InlinedStackNode initialStackNode = stackManager.createStackNode(parseTable.getStartState());
 
         parseState.activeStacks.add(initialStackNode);
 
@@ -91,156 +55,155 @@ public class InlinedParser implements IParser<InlinedParseForest> {
             do {
                 parseLoop(parseState);
 
-                if(parseState.acceptingStack == null)
+                if (parseState.acceptingStack == null)
                     recover = failureHandler.onFailure(parseState);
                 else
                     recover = false;
-            } while(recover);
+            } while (recover);
 
-            if(parseState.acceptingStack != null) {
-                HybridParseForest parseForest =
-                    stackManager.findDirectLink(parseState.acceptingStack, initialStackNode).parseForest;
+            if (parseState.acceptingStack != null) {
+                InlinedParseNode parseForest = (InlinedParseNode) stackManager.findDirectLink(parseState.acceptingStack,
+                        initialStackNode).parseForest;
 
-                HybridParseForest parseForestWithStartSymbol = request.startSymbol != null
-                    ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState) : parseForest;
+                InlinedParseNode parseForestWithStartSymbol = request.startSymbol != null
+                        ? parseForestManager.filterStartSymbol(parseForest, request.startSymbol, parseState)
+                        : parseForest;
 
-                if(parseForest != null && parseForestWithStartSymbol == null)
-                    return failure(parseState, new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
+                if (parseForest != null && parseForestWithStartSymbol == null)
+                    return failure(new ParseFailureCause(ParseFailureCause.Type.InvalidStartSymbol));
                 else
                     return complete(parseState, parseForestWithStartSymbol);
             } else
-                return failure(parseState, failureHandler.failureCause(parseState));
-        } catch(ParseException e) {
-            return failure(parseState, e.cause);
+                return failure(failureHandler.failureCause(parseState));
+        } catch (ParseException e) {
+            return failure(e.cause);
         }
     }
 
-    @Override public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
-        parseForestManager.visit(success.parseState.request, (HybridParseForest) success.parseResult,
-            (ParseNodeVisitor<HybridParseForest, HybridDerivation, HybridParseNode>) visitor);
+    @Override
+    public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
+        throw new NotImplementedException("This parser uses its own parse nodes");
     }
 
-    protected RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> getParseState(JSGLR2Request request) {
-        return parseStateFactory.get(request, inputStackFactory.get(request.input), observing);
+    protected InlinedParseState getParseState(JSGLR2Request request) {
+        return new InlinedParseState(request, new InlinedInputStack(request.input), observing);
     }
 
-    protected ParseResult<HybridParseForest> complete(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState, HybridParseForest parseForest) {
+    protected ParseResult<IParseForest> complete(InlinedParseState parseState, InlinedParseNode parseForest) {
         List<Message> messages = new ArrayList<>();
-        CycleDetector<HybridParseForest, HybridDerivation, HybridParseNode> cycleDetector = new CycleDetector<>(messages);
+        InlinedCycleDetector cycleDetector = new InlinedCycleDetector(messages);
 
         parseForestManager.visit(parseState.request, parseForest, cycleDetector);
 
-        if(cycleDetector.cycleDetected()) {
-            return failure(new ParseFailure<>(parseState, cycleDetector.failureCause));
+        if (cycleDetector.cycleDetected()) {
+            return failure(cycleDetector.failureCause);
         } else {
             reporter.report(parseState, parseForest, messages);
 
-            // Generate errors for non-assoc or non-nested productions that are used associatively
-            parseForestManager.visit(parseState.request, parseForest, new NonAssocDetector<>(messages));
+            // Generate errors for non-assoc or non-nested productions that are used
+            // associatively
+            parseForestManager.visit(parseState.request, parseForest, new InlinedNonAssocDetector(messages));
 
-            if(parseState.request.reportAmbiguities) {
+            if (parseState.request.reportAmbiguities) {
                 // Generate warnings for ambiguous parse nodes
                 parseForestManager.visit(parseState.request, parseForest,
-                    new AmbiguityDetector<>(parseState.inputStack.inputString(), messages));
+                        new InlinedAmbiguityDetector(parseState.inputStack.inputString(), messages));
             }
 
-            ParseSuccess<HybridParseForest> success = new ParseSuccess<>(parseState, parseForest, messages);
+            ParseSuccess<IParseForest> success = new ParseSuccess<>(null, parseForest, messages);
 
-            //observing.notify(observer -> observer.success(success));
+            // observing.notify(observer -> observer.success(success));
 
             return success;
         }
     }
 
-    protected ParseFailure<HybridParseForest> failure(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState, ParseFailureCause failureCause) {
-        return failure(new ParseFailure<>(parseState, failureCause));
+    protected ParseFailure<IParseForest> failure(ParseFailureCause failureCause) {
+        // observing.notify(observer -> observer.failure(failure));
+        // null here should not break anything, right?
+        return new ParseFailure<>(null, failureCause);
     }
 
-    protected ParseFailure<HybridParseForest> failure(ParseFailure<HybridParseForest> failure) {
-        //observing.notify(observer -> observer.failure(failure));
-
-        return failure;
-    }
-
-    protected void parseLoop(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) throws ParseException {
-        while(parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
+    protected void parseLoop(InlinedParseState parseState) throws ParseException {
+        while (parseState.inputStack.hasNext() && !parseState.activeStacks.isEmpty()) {
             parseCharacter(parseState);
-            parseState.inputStack.consumed();
-
-            if(!parseState.activeStacks.isEmpty())
+            if (!parseState.activeStacks.isEmpty())
                 parseState.inputStack.next();
         }
     }
 
-    protected void parseCharacter(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) throws ParseException {
-        parseState.nextParseRound(observing);
+    protected void parseCharacter(InlinedParseState parseState) throws ParseException {
+        parseState.nextParseRound();
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);
 
-        //observing.notify(observer -> observer.forActorStacks(parseState.forActorStacks));
+        // observing.notify(observer ->
+        // observer.forActorStacks(parseState.forActorStacks));
 
         processForActorStacks(parseState);
 
         shifter(parseState);
     }
 
-    protected void processForActorStacks(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) {
-        while(parseState.forActorStacks.nonEmpty()) {
-            HybridStackNode<HybridParseForest> stack = parseState.forActorStacks.remove();
+    protected void processForActorStacks(InlinedParseState parseState) {
+        while (parseState.forActorStacks.nonEmpty()) {
+            InlinedStackNode stack = parseState.forActorStacks.remove();
 
-            //observing.notify(observer -> observer.handleForActorStack(stack, parseState.forActorStacks));
+            // observing.notify(observer -> observer.handleForActorStack(stack,
+            // parseState.forActorStacks));
 
-            if(!stack.allLinksRejected())
+            if (!stack.allLinksRejected())
                 actor(stack, parseState);
-            else
-                //observing.notify(observer -> observer.skipRejectedStack(stack));
+            // else
+            // observing.notify(observer -> observer.skipRejectedStack(stack));
         }
     }
 
-    protected void actor(HybridStackNode<HybridParseForest> stack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) {
-        //observing.notify(observer -> observer.actor(stack, parseState,
-            stack.state().getApplicableActions(parseState.inputStack, parseState.mode)));
+    protected void actor(InlinedStackNode stack, InlinedParseState parseState) {
+        // observing.notify(observer -> observer.actor(stack, parseState,
+        stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
-        for(IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))
+        for (IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))
             actor(stack, parseState, action);
     }
 
-    protected void actor(HybridStackNode<HybridParseForest> stack, RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState, IAction action) {
-        switch(action.actionType()) {
-            case SHIFT:
-                IShift shiftAction = (IShift) action;
-                IState shiftState = parseTable.getState(shiftAction.shiftStateId());
+    protected void actor(InlinedStackNode stack, InlinedParseState parseState, IAction action) {
+        switch (action.actionType()) {
+        case SHIFT:
+            IShift shiftAction = (IShift) action;
+            IState shiftState = parseTable.getState(shiftAction.shiftStateId());
 
-                addForShifter(parseState, stack, shiftState);
+            addForShifter(parseState, stack, shiftState);
 
-                break;
-            case REDUCE:
-            case REDUCE_LOOKAHEAD: // Lookahead is checked while retrieving applicable actions from the state
-                IReduce reduceAction = (IReduce) action;
+            break;
+        case REDUCE:
+        case REDUCE_LOOKAHEAD: // Lookahead is checked while retrieving applicable actions from the state
+            IReduce reduceAction = (IReduce) action;
 
-                reduceManager.doReductions(/* observing, */ parseState, stack, reduceAction);
+            reduceManager.doReductions(/* observing, */ parseState, stack, reduceAction);
 
-                break;
-            case ACCEPT:
-                parseState.acceptingStack = stack;
+            break;
+        case ACCEPT:
+            parseState.acceptingStack = stack;
 
-                //observing.notify(observer -> observer.accept(stack));
+            // observing.notify(observer -> observer.accept(stack));
 
-                break;
+            break;
         }
     }
 
-    protected void shifter(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) {
+    protected void shifter(InlinedParseState parseState) {
         parseState.activeStacks.clear();
 
-        HybridParseForest characterNode = getNodeToShift(parseState);
+        InlinedCharacterNode characterNode = getNodeToShift(parseState);
 
-        //observing.notify(observer -> observer.shifter(characterNode, parseState.forShifter));
+        // observing.notify(observer -> observer.shifter(characterNode,
+        // parseState.forShifter));
 
-        for(ForShifterElement<HybridStackNode<HybridParseForest>> forShifterElement : parseState.forShifter) {
-            HybridStackNode<HybridParseForest> gotoStack = parseState.activeStacks.findWithState(forShifterElement.state);
+        for (InlinedForShifterElement forShifterElement : parseState.forShifter) {
+            InlinedStackNode gotoStack = parseState.activeStacks.findWithState(forShifterElement.state);
 
-            if(gotoStack != null) {
+            if (gotoStack != null) {
                 stackManager.createStackLink(parseState, gotoStack, forShifterElement.stack, characterNode);
             } else {
                 gotoStack = stackManager.createStackNode(forShifterElement.state);
@@ -250,21 +213,27 @@ public class InlinedParser implements IParser<InlinedParseForest> {
                 parseState.activeStacks.add(gotoStack);
             }
 
-            HybridStackNode<HybridParseForest> finalGotoStack = gotoStack;
-            //observing.notify(observer -> observer.shift(parseState, forShifterElement.stack, finalGotoStack));
+            //from RecoveryObserver
+            if(parseState.isRecovering()) {
+                int quota = parseState.recoveryJob().getQuota(forShifterElement.stack);
+                int lastRecoveredOffset = parseState.recoveryJob().lastRecoveredOffset(forShifterElement.stack);
+
+                parseState.recoveryJob().updateQuota(gotoStack, quota);
+                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, lastRecoveredOffset);
+            }
         }
 
         parseState.forShifter.clear();
     }
 
-    protected HybridParseForest getNodeToShift(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState) {
+    protected InlinedCharacterNode getNodeToShift(InlinedParseState parseState) {
         return parseForestManager.createCharacterNode(parseState);
     }
 
-    protected void addForShifter(RecoveryParseState<InputStack, HybridStackNode<HybridParseForest>> parseState, HybridStackNode<HybridParseForest> stack, IState shiftState) {
-        ForShifterElement<HybridStackNode<HybridParseForest>> forShifterElement = new ForShifterElement<>(stack, shiftState);
+    protected void addForShifter(InlinedParseState parseState, InlinedStackNode stack, IState shiftState) {
+        InlinedForShifterElement forShifterElement = new InlinedForShifterElement(stack, shiftState);
 
-        //observing.notify(observer -> observer.addForShifter(forShifterElement));
+        // observing.notify(observer -> observer.addForShifter(forShifterElement));
 
         parseState.forShifter.add(forShifterElement);
     }

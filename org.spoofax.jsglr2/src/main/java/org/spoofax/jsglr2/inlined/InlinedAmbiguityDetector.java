@@ -1,29 +1,23 @@
-package org.spoofax.jsglr2.parser;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.Collection;
 
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.messages.SourceRegion;
-import org.spoofax.jsglr2.parseforest.*;
+import org.spoofax.jsglr2.parseforest.ParseNodeVisiting;
+import org.spoofax.jsglr2.parser.Position;
 
-public class AmbiguityDetector
-//@formatter:off
-   <ParseForest extends IParseForest,
-    Derivation  extends IDerivation<ParseForest>,
-    ParseNode   extends IParseNode<ParseForest, Derivation>>
-//@formatter:on
-    implements ParseNodeVisitor<ParseForest, Derivation, ParseNode> {
-
+public class InlinedAmbiguityDetector implements IInlinedParseNodeVisitor {
     private final String inputString;
     private final Collection<Message> messages;
 
-    AmbiguityDetector(String inputString, Collection<Message> messages) {
+    public InlinedAmbiguityDetector(String inputString, Collection<Message> messages) {
         this.inputString = inputString;
         this.messages = messages;
     }
 
-    @Override public void postVisit(ParseNode parseNode, Position startPosition, Position endPosition) {
+    @Override public void postVisit(InlinedParseNode parseNode, Position startPosition, Position endPosition) {
         if(parseNode.isAmbiguous()) {
             String message;
 
@@ -50,4 +44,8 @@ public class AmbiguityDetector
         }
     }
 
+    @Override
+    public boolean preVisit(InlinedParseNode parseNode, Position startPosition) {
+        return true;
+    }
 }

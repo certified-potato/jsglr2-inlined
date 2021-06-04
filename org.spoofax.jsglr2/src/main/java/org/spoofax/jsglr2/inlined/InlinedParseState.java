@@ -1,4 +1,4 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import org.metaborg.parsetable.query.ParsingMode;
 import org.spoofax.jsglr.client.imploder.IToken;
 import org.spoofax.jsglr.client.imploder.ITokens;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.inlined.InlinedObserver;
 import org.spoofax.jsglr2.messages.Category;
 import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.ParseException;
@@ -20,23 +19,23 @@ import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.recovery.RecoveryMessage;
 import org.spoofax.jsglr2.recovery.RecoveryType;
 
-public class InlinedParseState {
+class InlinedParseState {
 
     Stack<InlinedBacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private InlinedRecoveryJob recoveryJob = null;
     private boolean appliedRecovery = false;
     private InlinedObserver observing;
 
-    final public JSGLR2Request request;
+    final JSGLR2Request request;
 
-    public InlinedInputStack inputStack;
-    public ParsingMode mode;
+    InlinedInputStack inputStack;
+    ParsingMode mode;
 
-    public final InlinedActiveStacks activeStacks;
-    public final InlinedForActorStacks forActorStacks;
-    public final ArrayDeque<InlinedForShifterElement> forShifter = new ArrayDeque<>();
+    final InlinedActiveStacks activeStacks;
+    final InlinedForActorStacks forActorStacks;
+    final ArrayDeque<InlinedForShifterElement> forShifter = new ArrayDeque<>();
 
-    public InlinedStackNode acceptingStack;
+    InlinedStackNode acceptingStack;
 
     protected InlinedParseState(JSGLR2Request request, InlinedInputStack inputStack, InlinedObserver observing) {
         this.request = request;
@@ -48,19 +47,19 @@ public class InlinedParseState {
         this.forActorStacks = new InlinedForActorStacks(observing);
     }
 
-    public InlinedBacktrackChoicePoint createBacktrackChoicePoint() {
+    InlinedBacktrackChoicePoint createBacktrackChoicePoint() {
         return new InlinedBacktrackChoicePoint(inputStack.clone(), activeStacks);
     }
 
-    public boolean isRecovering() {
+    boolean isRecovering() {
         return recoveryJob() != null;
     }
 
-    public boolean successfulRecovery(JSGLR2Request request, int currentOffset) {
+    boolean successfulRecovery(JSGLR2Request request, int currentOffset) {
         return isRecovering() && currentOffset >= recoveryJob().offset + request.succeedingRecoveryOffset;
     }
 
-    public void nextParseRound() throws ParseException {
+    void nextParseRound() throws ParseException {
         // observing.notify(observer -> observer.parseRound(this.getFake(),
         // activeStacks));
         if (isRecovering() && recoveryJob.timeout())
@@ -91,25 +90,25 @@ public class InlinedParseState {
         }
     }
 
-    public Stack<InlinedBacktrackChoicePoint> backtrackChoicePoints() {
+    Stack<InlinedBacktrackChoicePoint> backtrackChoicePoints() {
         return backtrackChoicePoints;
     }
 
-    public void startRecovery(JSGLR2Request request, int offset) {
+    void startRecovery(JSGLR2Request request, int offset) {
         recoveryJob = new InlinedRecoveryJob(offset, request.recoveryIterationsQuota, request.recoveryTimeout);
         mode = ParsingMode.Recovery;
     }
 
-    public void endRecovery() {
+    void endRecovery() {
         recoveryJob = null;
         mode = ParsingMode.Standard;
     }
 
-    public InlinedRecoveryJob recoveryJob() {
+    InlinedRecoveryJob recoveryJob() {
         return recoveryJob;
     }
 
-    public boolean nextRecoveryIteration() {
+    boolean nextRecoveryIteration() {
         if (recoveryJob().hasNextIteration()) {
             int iteration = recoveryJob().nextIteration();
 
@@ -125,7 +124,6 @@ public class InlinedParseState {
             return false;
     }
 
-    @SuppressWarnings("unchecked")
     protected void resetToBacktrackChoicePoint(InlinedBacktrackChoicePoint backtrackChoicePoint) {
         this.inputStack = backtrackChoicePoint.inputStack().clone();
 
@@ -135,15 +133,15 @@ public class InlinedParseState {
             this.activeStacks.add(activeStack);
     }
 
-    public boolean appliedRecovery() {
+    boolean appliedRecovery() {
         return appliedRecovery;
     }
 
-    public void setAppliedRecovery() {
+    void setAppliedRecovery() {
         appliedRecovery = true;
     }
 
-    public List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
+    List<Message> postProcessMessages(Collection<Message> originalMessages, ITokens tokens) {
         List<Message> messages = new ArrayList<>();
 
         for (Message originalMessage : originalMessages) {
@@ -182,11 +180,11 @@ public class InlinedParseState {
         return messages;
     }
 
-    public InlinedBacktrackChoicePoint saveBacktrackChoicePoint() {
+    InlinedBacktrackChoicePoint saveBacktrackChoicePoint() {
         return backtrackChoicePoints().push(createBacktrackChoicePoint());
     }
 
-    public InlinedBacktrackChoicePoint lastBacktrackChoicePoint() {
+    InlinedBacktrackChoicePoint lastBacktrackChoicePoint() {
         return backtrackChoicePoints().peek();
     }
 

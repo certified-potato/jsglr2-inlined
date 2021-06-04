@@ -1,17 +1,16 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.inlined.InlinedObserver;
-import org.spoofax.jsglr2.parseforest.ParseForestManager;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 
 public class InlinedStackManager {
 
     protected final InlinedObserver observing;
 
-    protected InlinedStackManager(InlinedObserver observing) {
+    public InlinedStackManager(InlinedObserver observing) {
         this.observing = observing;
     }
 
@@ -24,7 +23,7 @@ public class InlinedStackManager {
     }
 
     public InlinedStackLink createStackLink(InlinedParseState parseState, InlinedStackNode from, InlinedStackNode to,
-            InlinedParseForest parseForest) {
+            IParseForest parseForest) {
         InlinedStackLink link = from.addLink(to, parseForest);
 
         // observing.notify(observer -> observer.createStackLink(link));
@@ -73,25 +72,21 @@ public class InlinedStackManager {
         }
     }
 
-    public InlinedParseForest[] getParseForests(ParseForestManager<InlinedParseForest, ?, ?, ?, ?> parseForestManager,
-            InlinedStackPath pathBegin) {
-        InlinedParseForest[] res = parseForestManager.parseForestsArray(pathBegin.length);
+    public IParseForest[] getParseForests(InlinedParseForestManager parseForestManager, InlinedStackPath pathBegin) {
+        IParseForest[] res = new IParseForest[pathBegin.length];
 
-        if (res != null) {
-            InlinedStackPath path = pathBegin;
+        InlinedStackPath path = pathBegin;
 
-            for (int i = 0; i < pathBegin.length; i++) {
-                InlinedStackPath.NonEmpty nonEmptyPath = (InlinedStackPath.NonEmpty) path;
+        for (int i = 0; i < pathBegin.length; i++) {
+            InlinedStackPath.NonEmpty nonEmptyPath = (InlinedStackPath.NonEmpty) path;
 
-                res[i] = nonEmptyPath.link.parseForest;
+            res[i] = nonEmptyPath.link.parseForest;
 
-                path = nonEmptyPath.tail;
-            }
-
-            return res;
+            path = nonEmptyPath.tail;
         }
 
-        return null;
+        return res;
+
     }
 
 }

@@ -5,31 +5,14 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
 import org.spoofax.jsglr2.imploder.TokenizedStrategoTermImploder;
 import org.spoofax.jsglr2.inlined.InlinedParser;
-import org.spoofax.jsglr2.inputstack.InputStack;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForestManager;
 import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
 import org.spoofax.jsglr2.parser.IParser;
-import org.spoofax.jsglr2.parser.Parser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
-import org.spoofax.jsglr2.recovery.RecoveryDisambiguator;
-import org.spoofax.jsglr2.recovery.RecoveryObserver;
-import org.spoofax.jsglr2.recovery.RecoveryParseFailureHandler;
-import org.spoofax.jsglr2.recovery.RecoveryParseReporter;
-import org.spoofax.jsglr2.recovery.RecoveryParseState;
-import org.spoofax.jsglr2.recovery.RecoveryReduceActionFilter;
-import org.spoofax.jsglr2.recovery.RecoveryReducerOptimized;
-import org.spoofax.jsglr2.reducing.ReduceManager;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ActiveStacksRepresentation;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksFactory;
-import org.spoofax.jsglr2.stack.collections.ForActorStacksRepresentation;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackManager;
-import org.spoofax.jsglr2.stack.hybrid.HybridStackNode;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
@@ -39,9 +22,6 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
 
     public JSGLR2RecoveryInlined(IParseTable table) {
         parser = new InlinedParser(table);
-
-        parser.reduceManager.addFilter(new RecoveryReduceActionFilter<>());
-        parser.observing().attachObserver(new RecoveryObserver<>());
     }
 
     @Override
@@ -51,7 +31,7 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
 
     @Override
     public void attachObserver(IParserObserver observer) {
-        parser.observing().attachObserver(observer);
+        throw new UnsupportedOperationException("This JSGLR2 does not use a IObservableParser!");
     }
 
     @Override

@@ -1,9 +1,8 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
-import org.spoofax.jsglr2.parser.observing.ParserObserving;
-import org.spoofax.jsglr2.stack.StackLink;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 
 public class InlinedReducer {
 
@@ -20,8 +19,7 @@ public class InlinedReducer {
     }
 
     public void reducerExistingStackWithDirectLink(InlinedParseState parseState, IReduce reduce,
-            InlinedStackLink existingDirectLinkToActiveStateWithGoto, InlinedParseForest[] parseForests) {
-        @SuppressWarnings("unchecked")
+            InlinedStackLink existingDirectLinkToActiveStateWithGoto, IParseForest[] parseForests) {
         InlinedParseNode parseNode = (InlinedParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
         if (reduce.isRejectProduction())
@@ -37,17 +35,17 @@ public class InlinedReducer {
 
     public InlinedStackLink reducerExistingStackWithoutDirectLink(InlinedParseState parseState, IReduce reduce,
             InlinedStackNode existingActiveStackWithGotoState, InlinedStackNode stack,
-            InlinedParseForest[] parseForests) {
+            IParseForest[] parseForests) {
         InlinedStackLink newDirectLinkToActiveStateWithGoto;
 
         if (reduce.isRejectProduction()) {
             newDirectLinkToActiveStateWithGoto = stackManager.createStackLink(parseState,
-                    existingActiveStackWithGotoState, stack, (InlinedParseForest) parseForestManager
-                            .createSkippedNode(parseState, reduce.production(), parseForests));
+                    existingActiveStackWithGotoState, stack,
+                    parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(newDirectLinkToActiveStateWithGoto);
         } else {
-            InlinedParseForest parseNode = getParseNode(parseState, reduce, stack, parseForests);
+            InlinedParseNode parseNode = getParseNode(parseState, reduce, stack, parseForests);
 
             newDirectLinkToActiveStateWithGoto = stackManager.createStackLink(parseState,
                     existingActiveStackWithGotoState, stack, parseNode);
@@ -57,19 +55,18 @@ public class InlinedReducer {
     }
 
     public InlinedStackNode reducerNoExistingStack(InlinedParseState parseState, IReduce reduce, InlinedStackNode stack,
-            IState gotoState, InlinedParseForest[] parseForests) {
+            IState gotoState, IParseForest[] parseForests) {
         InlinedStackNode newStackWithGotoState = stackManager.createStackNode(gotoState);
 
         InlinedStackLink link;
 
         if (reduce.isRejectProduction()) {
             link = stackManager.createStackLink(parseState, newStackWithGotoState, stack,
-                    (InlinedParseForest) parseForestManager.createSkippedNode(parseState, reduce.production(),
-                            parseForests));
+                    parseForestManager.createSkippedNode(parseState, reduce.production(), parseForests));
 
             stackManager.rejectStackLink(link);
         } else {
-            InlinedParseForest parseNode = getParseNode(parseState, reduce, stack, parseForests);
+            InlinedParseNode parseNode = getParseNode(parseState, reduce, stack, parseForests);
 
             stackManager.createStackLink(parseState, newStackWithGotoState, stack, parseNode);
         }
@@ -77,8 +74,8 @@ public class InlinedReducer {
         return newStackWithGotoState;
     }
 
-    private InlinedParseForest getParseNode(InlinedParseState parseState, IReduce reduce, InlinedStackNode stack,
-            InlinedParseForest[] parseForests) {
+    private InlinedParseNode getParseNode(InlinedParseState parseState, IReduce reduce, InlinedStackNode stack,
+            IParseForest[] parseForests) {
         InlinedParseNode parseNode;
 
         if (skipParseNodeCreation(parseState, reduce))
@@ -89,6 +86,6 @@ public class InlinedReducer {
             parseNode = parseForestManager.createParseNode(parseState, stack, reduce.production(), derivation);
         }
 
-        return (InlinedParseForest) parseNode;
+        return parseNode;
     }
 }

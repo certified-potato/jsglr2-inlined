@@ -1,12 +1,12 @@
-package org.spoofax.jsglr2.inlined.components;
+package org.spoofax.jsglr2.inlined;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public class InlinedDisambugator {
-    public void disambiguate(InlinedParseState parseState, InlinedParseNode parseNode) {
+class InlinedDisambugator {
+    void disambiguate(InlinedParseState parseState, InlinedParseNode parseNode) {
         if(parseNode.isAmbiguous() && parseState.isRecovering()) {
             RecoverCost minRecoveryCost = null;
             InlinedDerivation bestRecovery = null;
@@ -40,7 +40,7 @@ public class InlinedDisambugator {
 
         RecoverCost cost = null;
 
-        for(InlinedParseForest child : derivation.parseForests()) {
+        for(IParseForest child : derivation.parseForests()) {
             if(child instanceof InlinedParseNode) {
                 InlinedParseNode parseNode = (InlinedParseNode) child;
 
