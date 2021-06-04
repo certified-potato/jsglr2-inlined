@@ -24,7 +24,6 @@ class InlinedParseState {
     Stack<InlinedBacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private InlinedRecoveryJob recoveryJob = null;
     private boolean appliedRecovery = false;
-    private InlinedObserver observing;
 
     final JSGLR2Request request;
 
@@ -37,14 +36,13 @@ class InlinedParseState {
 
     InlinedStackNode acceptingStack;
 
-    protected InlinedParseState(JSGLR2Request request, InlinedInputStack inputStack, InlinedObserver observing) {
+    protected InlinedParseState(JSGLR2Request request, InlinedInputStack inputStack) {
         this.request = request;
         this.inputStack = inputStack;
-        this.observing = observing;
         this.mode = ParsingMode.Standard;
 
-        this.activeStacks = new InlinedActiveStacks(observing);
-        this.forActorStacks = new InlinedForActorStacks(observing);
+        this.activeStacks = new InlinedActiveStacks();
+        this.forActorStacks = new InlinedForActorStacks();
     }
 
     InlinedBacktrackChoicePoint createBacktrackChoicePoint() {
@@ -60,8 +58,6 @@ class InlinedParseState {
     }
 
     void nextParseRound() throws ParseException {
-        // observing.notify(observer -> observer.parseRound(this.getFake(),
-        // activeStacks));
         if (isRecovering() && recoveryJob.timeout())
             throw new ParseException(
                     new ParseFailureCause(ParseFailureCause.Type.RecoveryTimeout, inputStack.safePosition()),
@@ -73,20 +69,11 @@ class InlinedParseState {
         // If in recovery mode, only record new choice points when parsing after the
         // point that initiated recovery.
         if ((currentOffset == 0 || CharacterClassFactory.isNewLine(inputStack.getChar(currentOffset - 1)))
-                && (!isRecovering() || lastBacktrackChoicePoint().offset() < currentOffset)) {
-            InlinedBacktrackChoicePoint choicePoint = saveBacktrackChoicePoint();
-
-            // observing.notify( observer ->
-            // observer.recoveryBacktrackChoicePoint(backtrackChoicePoints().size() - 1,
-            // choicePoint));
-
-            // TODO: insert recovery mechanism
-        }
+                && (!isRecovering() || lastBacktrackChoicePoint().offset() < currentOffset))
+            saveBacktrackChoicePoint();
 
         if (successfulRecovery(request, currentOffset)) {
             endRecovery();
-
-            // observing.notify(observer -> observer.endRecovery(this.getFake()));
         }
     }
 

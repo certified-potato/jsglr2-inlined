@@ -7,17 +7,13 @@ import java.util.NoSuchElementException;
 import org.metaborg.parsetable.states.IState;
 
 class InlinedActiveStacks{
-    InlinedObserver observing;
     ArrayList<InlinedStackNode> activeStacks;
     
-    InlinedActiveStacks(InlinedObserver observing) {
-        this.observing = observing;
+    InlinedActiveStacks() {
         this.activeStacks = new ArrayList<>();
     }
 
     void add(InlinedStackNode stack) {
-        //observing.notify(observer -> observer.addActiveStack(stack.getFake()));
-
         activeStacks.add(stack);
     }
 
@@ -38,8 +34,6 @@ class InlinedActiveStacks{
     }
 
     InlinedStackNode findWithState(IState state) {
-        //observing.notify(observer -> observer.findActiveStackWithState(state));
-
         for(InlinedStackNode stack : activeStacks)
             if(stack.state().id() == state.id())
                 return stack;

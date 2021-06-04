@@ -16,11 +16,11 @@ import org.spoofax.jsglr2.parser.Position;
 
 class InlinedParseForestManager {
 
-    final InlinedObserver observing;
+    final StatCounter observer;
     final InlinedDisambugator disambiguator = new InlinedDisambugator();
 
-    InlinedParseForestManager(InlinedObserver observing) {
-        this.observing = observing;
+    InlinedParseForestManager(StatCounter observer) {
+        this.observer = observer;
     }
 
     InlinedParseNode createParseNode(InlinedParseState parseState, InlinedStackNode stack, IProduction production,
@@ -28,10 +28,7 @@ class InlinedParseForestManager {
         InlinedParseNode parseNode = new InlinedParseNode(sumWidth(firstDerivation.parseForests()), production,
                 firstDerivation);
 
-        // observing.notify(observer -> observer.createParseNode(parseNode.getFake(),
-        // production));
-        // observing.notify(observer -> observer.addDerivation(parseNode,
-        // firstDerivation));
+        observer.createParseNode(parseNode);
 
         return parseNode;
     }
@@ -40,15 +37,10 @@ class InlinedParseForestManager {
             ProductionType productionType, IParseForest[] parseForests) {
         InlinedDerivation derivation = new InlinedDerivation(production, productionType, parseForests);
 
-        // observing.notify(observer -> observer.createDerivation(derivation,
-        // production, parseForests));
-
         return derivation;
     }
 
     void addDerivation(InlinedParseState parseState, InlinedParseNode parseNode, InlinedDerivation derivation) {
-        // observing.notify(observer -> observer.addDerivation(parseNode, derivation));
-
         parseNode.addDerivation(derivation);
 
         if (disambiguator != null)
@@ -63,8 +55,7 @@ class InlinedParseForestManager {
     InlinedCharacterNode createCharacterNode(InlinedParseState parseState) {
         InlinedCharacterNode characterNode = new InlinedCharacterNode(parseState.inputStack.getChar());
 
-        // observing.notify(observer -> observer.createCharacterNode(characterNode,
-        // characterNode.character));
+        observer.createCharacterNode();
 
         return characterNode;
     }

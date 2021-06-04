@@ -9,13 +9,10 @@ import java.util.Queue;
 import com.google.common.collect.Iterables;
 
 class InlinedForActorStacks {
-    private final InlinedObserver observing;
     final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
     final Queue<InlinedStackNode> forActorDelayed;
 
-    InlinedForActorStacks(InlinedObserver observing) {
-        this.observing = observing;
-
+    InlinedForActorStacks() {
         // TODO: implement priority (see P9707 Section 8.4)
         Comparator<InlinedStackNode> stackNodePriorityComparator = (InlinedStackNode stackNode1,
                 InlinedStackNode stackNode2) -> 0;
@@ -24,8 +21,6 @@ class InlinedForActorStacks {
     }
 
     void add(InlinedStackNode stack) {
-        // observing.notify(observer -> observer.addForActorStack(stack.getFake()));
-
         if (stack.state().isRejectable())
             forActorDelayed.add(stack);
         else
