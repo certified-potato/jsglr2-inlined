@@ -15,15 +15,15 @@ public class InlinedStackNode {
     private InlinedStackLink firstLink;
     private ArrayList<InlinedStackLink> otherLinks;
 
-    public InlinedStackNode(IState state) {
+    InlinedStackNode(IState state) {
         this.state = state;
     }
     
-    public IState state() {
+    IState state() {
         return state;
     }
 
-    public InlinedStackLink addLink(InlinedStackLink link) {
+    InlinedStackLink addLink(InlinedStackLink link) {
         if (firstLink == null)
             firstLink = link;
         else {
@@ -36,21 +36,30 @@ public class InlinedStackNode {
         return link;
     }
     
-    public InlinedStackLink addLink(InlinedStackNode parent, IParseForest parseNode) {
+    InlinedStackLink addLink(InlinedStackNode parent, IParseForest parseNode) {
         InlinedStackLink link = new InlinedStackLink(this, parent, parseNode);
 
         return addLink(link);
     }
 
-    public Iterable<InlinedStackLink> getLinks() {
+    Iterable<InlinedStackLink> getLinks() {
         if (otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {
             return SingleElementWithListIterable.of(firstLink, otherLinks);
         }
     }
+    
+    int getLinksSize() {
+        if (otherLinks == null) {
+            return 1;
+        } else {
+            return 1 + otherLinks.size();
+        }
+    }
+    
 
-    public boolean allLinksRejected() {
+    boolean allLinksRejected() {
         if (firstLink == null || !firstLink.isRejected())
             return false;
 

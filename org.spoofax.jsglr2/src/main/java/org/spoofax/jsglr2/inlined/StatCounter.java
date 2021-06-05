@@ -49,15 +49,6 @@ public class StatCounter {
     long parseNodesSingleDerivation = 0;
     long characterNodes = 0;
 
-    private long stackNodeLinkCount(InlinedStackNode stackNode) {
-        long linksOutCount = 0;
-
-        for (InlinedStackLink link : stackNode.getLinks())
-            linksOutCount++;
-
-        return linksOutCount;
-    }
-
     public void parseStart(InlinedParseState parseState) {
         length += parseState.inputStack.inputString().length();
     }
@@ -103,7 +94,7 @@ public class StatCounter {
         for (InlinedStackNode stackNode : stackNodes_) {
             stackNodes++;
 
-            if (stackNodeLinkCount(stackNode) == 1)
+            if (stackNode.getLinksSize() == 1)
                 stackNodesSingleLink++;
         }
 
