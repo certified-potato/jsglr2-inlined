@@ -28,7 +28,6 @@ public class InlinedParser implements IParser<IParseForest> {
     protected final InlinedParseForestManager parseForestManager;
     public final InlinedReduceManager reduceManager;
     protected final InlinedParseFailureHandler failureHandler;
-    protected final InlinedParseReporter reporter;
 
     public InlinedParser(IParseTable table) {
         parseTable = table;
@@ -36,7 +35,6 @@ public class InlinedParser implements IParser<IParseForest> {
         parseForestManager = new InlinedParseForestManager(observer);
         reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager, observer);
         failureHandler = new InlinedParseFailureHandler(observer);
-        reporter = new InlinedParseReporter();
     }
 
     @Override
@@ -98,7 +96,7 @@ public class InlinedParser implements IParser<IParseForest> {
         if (cycleDetector.cycleDetected()) {
             return failure(cycleDetector.failureCause);
         } else {
-            reporter.report(parseState, parseForest, messages);
+            InlinedParseReporter.report(parseState, parseForest, parseForestManager, messages);
 
             // Generate errors for non-assoc or non-nested productions that are used
             // associatively
