@@ -3,11 +3,9 @@ package org.spoofax.jsglr2;
 import org.metaborg.parsetable.IParseTable;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.jsglr2.imploder.ImplodeResult;
-import org.spoofax.jsglr2.imploder.TokenizedStrategoTermImploder;
+import org.spoofax.jsglr2.inlined.InlinedImploder;
 import org.spoofax.jsglr2.inlined.InlinedParser;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridDerivation;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseForest;
-import org.spoofax.jsglr2.parseforest.hybrid.HybridParseNode;
+import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.IParser;
 import org.spoofax.jsglr2.parser.observing.IParserObserver;
 import org.spoofax.jsglr2.parser.result.ParseFailure;
@@ -18,7 +16,7 @@ import org.spoofax.jsglr2.tokens.Tokens;
 public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
 
     InlinedParser parser;
-    TokenizedStrategoTermImploder<HybridParseForest, HybridParseNode, HybridDerivation> imploder = new TokenizedStrategoTermImploder<HybridParseForest, HybridParseNode, HybridDerivation>();
+    InlinedImploder imploder = new InlinedImploder();
 
     public JSGLR2RecoveryInlined(IParseTable table) {
         parser = new InlinedParser(table);
@@ -30,15 +28,15 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
     }
 
     @Override
-    public void attachObserver(IParserObserver observer) {
+    public void attachObserver(@SuppressWarnings("rawtypes") IParserObserver observer) {
         throw new UnsupportedOperationException("This JSGLR2 does not use a IObservableParser!");
     }
 
     @Override
     public JSGLR2Result<IStrategoTerm> parseResult(JSGLR2Request request) {
-        ParseResult<HybridParseForest> parse = parser.parse(request);
+        ParseResult<IParseForest> parse = parser.parse(request);
         if (parse instanceof ParseSuccess<?>) {
-            ParseSuccess<HybridParseForest> suc = (ParseSuccess<HybridParseForest>) parse;
+            ParseSuccess<IParseForest> suc = (ParseSuccess<IParseForest>) parse;
             ImplodeResult<Tokens, Void, IStrategoTerm> implode = imploder.implode(request, suc.parseResult);
             Tokens tokens = implode.intermediateResult();
             suc.postProcessMessages(tokens);
