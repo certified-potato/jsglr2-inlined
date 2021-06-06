@@ -89,6 +89,8 @@ public class InlinedReduceManager {
         if (gotoStack != null) {
             InlinedStackLink directLink = stackManager.findDirectLink(gotoStack, originStack);
 
+            observer.reducers++;
+            
             if (directLink != null) {
                 reducer.reducerExistingStackWithDirectLink(parseState, reduce, directLink, parseForests);
             } else {
