@@ -44,15 +44,6 @@
                             <mainClass>org.spoofax.jsglr2.measure.JSGLR2Measurements</mainClass>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>incremental</id>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                        <configuration>
-                            <mainClass>org.spoofax.jsglr2.measure.JSGLR2MeasurementsIncremental</mainClass>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>

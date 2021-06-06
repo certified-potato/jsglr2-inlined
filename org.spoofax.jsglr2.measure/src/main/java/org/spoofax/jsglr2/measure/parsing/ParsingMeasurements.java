@@ -59,7 +59,7 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
 
         //@formatter:off
         output.addRows(measure("Regular Recovery",     variantRecovery,      parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measureInlined("Regular Recovery", parseTable));
+        output.addRows(measureInlined("Inlined Recovery", parseTable));
         //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
@@ -73,6 +73,7 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
                 for(StringInput input : inputBatch.inputs)
                     parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
             } catch(Exception e) {
+            	e.printStackTrace();
                 throw new IllegalStateException("Inlined variant measurement failed: "
                     + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
