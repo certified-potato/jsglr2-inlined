@@ -153,7 +153,10 @@ public class StatCounter {
                     parseNodesLiteralAmbiguous++;
                 break;
             }
-            if (parseNode.getDerivations().size() == 1)
+            int i = 0;
+            for(InlinedDerivation d : parseNode.getDerivations())
+                i++;
+            if(i == 1)
                 parseNodesSingleDerivation++;
         }
 

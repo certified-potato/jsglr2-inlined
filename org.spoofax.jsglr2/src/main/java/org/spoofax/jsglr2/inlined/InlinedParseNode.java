@@ -6,17 +6,19 @@ import java.util.List;
 
 import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
 class InlinedParseNode implements IParseForest {
     private final int width;
     private final IProduction production;
-    private ArrayList<InlinedDerivation> derivations;
+    private InlinedDerivation firstDerivation;
+    private ArrayList<InlinedDerivation> otherDerivations;
 
     InlinedParseNode(int width, IProduction production, InlinedDerivation firstDerivation) {
         this.width = width;
         this.production = production;
-        this.derivations = new ArrayList<>();
-        derivations.add(firstDerivation);
+        this.otherDerivations = null;
+        this.firstDerivation = firstDerivation;
     }
 
     InlinedParseNode(int width, IProduction production) {
@@ -33,32 +35,39 @@ class InlinedParseNode implements IParseForest {
     }
 
     void addDerivation(InlinedDerivation derivation) {
-        derivations.add(derivation);
+        if(otherDerivations == null)
+            otherDerivations = new ArrayList<>();
+
+        otherDerivations.add(derivation);
     }
 
     boolean hasDerivations() {
-        return !derivations.isEmpty();
+        return firstDerivation != null;
     }
 
-    ArrayList<InlinedDerivation> getDerivations() {
-        return derivations;
+    Iterable<InlinedDerivation> getDerivations() {
+        if(firstDerivation == null)
+            return Collections.emptyList();
+        if(otherDerivations == null)
+            return Collections.singleton(firstDerivation);
+
+        return SingleElementWithListIterable.of(firstDerivation, otherDerivations);
     }
 
     InlinedDerivation getFirstDerivation() {
-        try {
-            return derivations.get(0);
-        } catch (IndexOutOfBoundsException e) {
+        if(firstDerivation == null)
             throw new UnsupportedOperationException("Cannot get derivation of skipped parse node");
-        }
+
+        return firstDerivation;
     }
 
     boolean isAmbiguous() {
-        return derivations.size() > 0;
+        return otherDerivations != null;
     }
 
     void disambiguate(InlinedDerivation derivation) {
-        derivations.clear();
-        derivations.add(derivation);
+        firstDerivation = derivation;
+        otherDerivations = null;
     }
 
     List<InlinedDerivation> getPreferredAvoidedDerivations() {
