@@ -11,11 +11,17 @@ import org.metaborg.parsetable.IParseTable;
 import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
+import org.spoofax.jsglr2.inlined.InlinedParser;
+import org.spoofax.jsglr2.inlined.StatCounter;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
 import org.spoofax.jsglr2.measure.Measurements;
-import org.spoofax.jsglr2.parseforest.*;
+import org.spoofax.jsglr2.parseforest.IDerivation;
+import org.spoofax.jsglr2.parseforest.IParseForest;
+import org.spoofax.jsglr2.parseforest.IParseNode;
+import org.spoofax.jsglr2.parseforest.ParseForestConstruction;
+import org.spoofax.jsglr2.parseforest.ParseForestRepresentation;
 import org.spoofax.jsglr2.parser.AbstractParseState;
 import org.spoofax.jsglr2.parser.IObservableParser;
 import org.spoofax.jsglr2.parser.ParserVariant;
@@ -29,7 +35,7 @@ import org.spoofax.jsglr2.testset.testinput.StringInput;
 
 public class ParsingMeasurements extends Measurements<String, StringInput> {
 
-    public static final ParserVariant variantStandard =
+    public static final ParserVariant variantRecovery =
     //@formatter:off
         new ParserVariant(
             ActiveStacksRepresentation.ArrayList,
@@ -41,45 +47,6 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
             false
         );
         //@formatter:on
-
-    public static final ParserVariant optimizedParseForest =
-    //@formatter:off
-        new ParserVariant(
-            ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Optimized,
-            StackRepresentation.Hybrid,
-            Reducing.Basic,
-            false
-        );
-        //@formatter:on
-
-    public static final ParserVariant variantElkhound =
-    //@formatter:off
-        new ParserVariant(
-            ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.Hybrid,
-            ParseForestConstruction.Full,
-            StackRepresentation.HybridElkhound,
-            Reducing.Elkhound,
-            false
-        );
-    //@formatter:on
-
-    public static final ParserVariant variantIncremental =
-    //@formatter:off
-        new ParserVariant(
-            ActiveStacksRepresentation.ArrayList,
-            ForActorStacksRepresentation.ArrayDeque,
-            ParseForestRepresentation.Incremental,
-            ParseForestConstruction.Full,
-            StackRepresentation.Hybrid,
-            Reducing.Incremental,
-            false
-        );
-    //@formatter:on
 
     public ParsingMeasurements(TestSetWithParseTable<String, StringInput> testSet) {
         super(testSet);
@@ -91,16 +58,30 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         //@formatter:off
-        output.addRows(measure("standard",     variantStandard,      parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measure("optimized-pf", optimizedParseForest, parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measure("elkhound",     variantElkhound,      parseTable, new ElkhoundParserMeasureObserver<>()));
-        output.addRows(measure("incremental",  variantIncremental,   parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measure("Regular Recovery",     variantRecovery,      parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measureInlined("Regular Recovery", parseTable));
         //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
     }
 
-    private
+    private List<Map<ParsingMeasurement, String>> measureInlined(String name, IParseTable parseTable) throws IOException {
+    	return testSetReader.getInputBatches().map(inputBatch -> {
+            InlinedParser parser = new InlinedParser(parseTable);
+
+            try {
+                for(StringInput input : inputBatch.inputs)
+                    parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
+            } catch(Exception e) {
+                throw new IllegalStateException("Inlined variant measurement failed: "
+                    + e.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+
+            return toOutputInlined(name, inputBatch, parser.observer);
+        }).collect(Collectors.toList());
+	}
+    
+	private
 //@formatter:off
    <ParseForest extends IParseForest,
     Derivation  extends IDerivation<ParseForest>,
@@ -125,7 +106,7 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
                 for(StringInput input : inputBatch.inputs)
                     parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
             } catch(Exception e) {
-                throw new IllegalStateException("Parsing failed with variant " + variant.name() + ": "
+                throw new IllegalStateException("Recovery variant measurement failed: "
                     + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
 
@@ -255,5 +236,101 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
             }
         }));
     }
+    
+    Map<ParsingMeasurement, String> toOutputInlined(String name,
+            MeasureTestSetWithParseTableReader<String, StringInput>.InputBatch inputBatch, StatCounter counter) {
+            return Arrays.stream(ParsingMeasurement.values()).collect(Collectors.toMap(Function.identity(), measurement -> {
+                switch(measurement) {
+                    case name:
+                        return name;
+                    case size:
+                        return "" + inputBatch.size;
+                    case characters:
+                        return "" + counter.length;
+                    case activeStacksAdds:
+                        return "" + counter.activeStacksAdds;
+                    case activeStacksMaxSize:
+                        return "" + counter.activeStacksMaxSize;
+                    case activeStacksIsSingleChecks:
+                        return "";
+                    case activeStacksIsEmptyChecks:
+                        return "" + counter.activeStacksIsEmptyChecks;
+                    case activeStacksFindsWithState:
+                    	return "" + counter.activeStacksFindsWithState;
+                    case activeStacksForLimitedReductions:
+                    	return "" + counter.activeStacksForLimitedReductions;
+                    case activeStacksAddAllTo:
+                    	return "" + counter.activeStacksAddAllTo;
+                    case activeStacksClears:
+                    	return "" + counter.activeStacksClears;
+                    case activeStacksIterators:
+                    	return "";
+                    case forActorAdds:
+                    	return "" + counter.forActorAdds;
+                    case forActorDelayedAdds:
+                    	return "" + counter.forActorDelayedAdds;
+                    case forActorMaxSize:
+                    	return "" + counter.forActorMaxSize;
+                    case forActorDelayedMaxSize:
+                    	return "" + counter.forActorDelayedMaxSize;
+                    case forActorContainsChecks:
+                    	return "" + counter.forActorContainsChecks;
+                    case forActorNonEmptyChecks:
+                        return "" + counter.forActorNonEmptyChecks;
+                    case stackNodes:
+                        return "" + counter.stackNodes;
+                    case stackNodesSingleLink:
+                        return "" + counter.stackNodesSingleLink;
+                    case stackLinks:
+                        return "" + counter.stackLinks;
+                    case stackLinksRejected:
+                        return "" + counter.stackLinksRejected;
+                    case deterministicDepthResets:
+                        return "" + counter.deterministicDepthResets;
+                    case parseNodes:
+                        return "" + counter.parseNodes;
+                    case parseNodesAmbiguous:
+                        return "" + counter.parseNodesAmbiguous;
+                    case parseNodesContextFree:
+                        return "" + counter.parseNodesContextFree;
+                    case parseNodesContextFreeAmbiguous:
+                        return "" + counter.parseNodesContextFreeAmbiguous;
+                    case parseNodesLexical:
+                        return "" + counter.parseNodesLexical;
+                    case parseNodesLexicalAmbiguous:
+                        return "" + counter.parseNodesLexicalAmbiguous;
+                    case parseNodesLayout:
+                        return "" + counter.parseNodesLayout;
+                    case parseNodesLayoutAmbiguous:
+                        return "" + counter.parseNodesLayoutAmbiguous;
+                    case parseNodesLiteral:
+                        return "" + counter.parseNodesLiteral;
+                    case parseNodesLiteralAmbiguous:
+                        return "" + counter.parseNodesLiteralAmbiguous;
+                    case parseNodesSingleDerivation:
+                        return "" + counter.parseNodesSingleDerivation;
+                    case characterNodes:
+                        return "" + counter.characterNodes;
+                    case actors:
+                        return "" + counter.actors;
+                    case doReductions:
+                        return "" + counter.doReductions;
+                    case doLimitedReductions:
+                        return "" + counter.doLimitedReductions;
+                    case doReductionsLR:
+                        return "" + counter.doReductionsLR;
+                    case doReductionsDeterministicGLR:
+                        return "" + counter.doReductionsDeterministicGLR;
+                    case doReductionsNonDeterministicGLR:
+                        return "" + counter.doReductionsNonDeterministicGLR;
+                    case reducers:
+                        return "" + counter.reducers;
+                    case reducersElkhound:
+                        return "";
+                    default:
+                        return "";
+                }
+            }));
+        }
 
 }

@@ -22,12 +22,13 @@ import org.spoofax.terms.util.NotImplementedException;
 
 public class InlinedParser implements IParser<IParseForest> {
 
-    protected final StatCounter observer = new StatCounter();
+    public final StatCounter observer = new StatCounter();
     protected final IParseTable parseTable;
     protected final InlinedStackManager stackManager;
     protected final InlinedParseForestManager parseForestManager;
     public final InlinedReduceManager reduceManager;
     protected final InlinedParseFailureHandler failureHandler;
+    InlinedParseState parseState;
 
     public InlinedParser(IParseTable table) {
         parseTable = table;
@@ -39,7 +40,7 @@ public class InlinedParser implements IParser<IParseForest> {
 
     @Override
     public ParseResult<IParseForest> parse(JSGLR2Request request, String previousInput, IParseForest previousResult) {
-        InlinedParseState parseState = getParseState(request);
+        parseState = new InlinedParseState(request, new InlinedInputStack(request.input), observer);
 
         observer.parseStart(parseState);
 
@@ -81,10 +82,6 @@ public class InlinedParser implements IParser<IParseForest> {
     @Override
     public void visit(ParseSuccess<?> success, ParseNodeVisitor<?, ?, ?> visitor) {
         throw new NotImplementedException("This parser uses its own parse nodes");
-    }
-
-    protected InlinedParseState getParseState(JSGLR2Request request) {
-        return new InlinedParseState(request, new InlinedInputStack(request.input));
     }
 
     protected ParseResult<IParseForest> complete(InlinedParseState parseState, InlinedParseNode parseForest) {
@@ -196,8 +193,8 @@ public class InlinedParser implements IParser<IParseForest> {
                 parseState.activeStacks.add(gotoStack);
             }
 
-            //from RecoveryObserver
-            if(parseState.isRecovering()) {
+            // from RecoveryObserver
+            if (parseState.isRecovering()) {
                 int quota = parseState.recoveryJob().getQuota(forShifterElement.stack);
                 int lastRecoveredOffset = parseState.recoveryJob().lastRecoveredOffset(forShifterElement.stack);
 

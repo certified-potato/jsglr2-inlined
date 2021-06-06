@@ -30,19 +30,19 @@ class InlinedParseState {
     InlinedInputStack inputStack;
     ParsingMode mode;
 
-    final InlinedActiveStacks activeStacks;
-    final InlinedForActorStacks forActorStacks;
+    public final InlinedActiveStacks activeStacks;
+    public final InlinedForActorStacks forActorStacks;
     final ArrayDeque<InlinedForShifterElement> forShifter = new ArrayDeque<>();
 
     InlinedStackNode acceptingStack;
 
-    protected InlinedParseState(JSGLR2Request request, InlinedInputStack inputStack) {
+    protected InlinedParseState(JSGLR2Request request, InlinedInputStack inputStack, StatCounter counter) {
         this.request = request;
         this.inputStack = inputStack;
         this.mode = ParsingMode.Standard;
 
-        this.activeStacks = new InlinedActiveStacks();
-        this.forActorStacks = new InlinedForActorStacks();
+        this.activeStacks = new InlinedActiveStacks(counter);
+        this.forActorStacks = new InlinedForActorStacks(counter);
     }
 
     InlinedBacktrackChoicePoint createBacktrackChoicePoint() {

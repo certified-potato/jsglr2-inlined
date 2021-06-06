@@ -2,17 +2,19 @@ package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayDeque;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-import com.google.common.collect.Iterables;
-
 class InlinedForActorStacks {
+    
+    private final StatCounter counter;
+    
     final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
     final Queue<InlinedStackNode> forActorDelayed;
 
-    InlinedForActorStacks() {
+    InlinedForActorStacks(StatCounter counter) {
+        this.counter = counter;
+        
         // TODO: implement priority (see P9707 Section 8.4)
         Comparator<InlinedStackNode> stackNodePriorityComparator = (InlinedStackNode stackNode1,
                 InlinedStackNode stackNode2) -> 0;
@@ -21,51 +23,34 @@ class InlinedForActorStacks {
     }
 
     void add(InlinedStackNode stack) {
-        if (stack.state().isRejectable())
+        if (stack.state().isRejectable()) {
             forActorDelayed.add(stack);
-        else
-            forActorAdd(stack);
+            counter.forActorDelayedAdds++;
+        }
+        else {
+            forActor.add(stack);
+            counter.forActorAdds++;
+        }
+        counter.forActorMaxSize = Math.max(counter.forActorMaxSize, forActor.size());
+        counter.forActorDelayedMaxSize = Math.max(counter.forActorDelayedMaxSize, forActorDelayed.size());
     }
 
     boolean contains(InlinedStackNode stack) {
-        return forActorContains(stack) || forActorDelayed.contains(stack);
+        counter.forActorContainsChecks++;
+        return forActor.contains(stack) || forActorDelayed.contains(stack);
     }
 
     boolean nonEmpty() {
-        return forActorNonEmpty() || !forActorDelayed.isEmpty();
+        counter.forActorNonEmptyChecks++;
+        return !forActor.isEmpty() || !forActorDelayed.isEmpty();
     }
 
     InlinedStackNode remove() {
         // First return all actors in forActor
-        if (forActorNonEmpty())
-            return forActorRemove();
+        if (!forActor.isEmpty())
+            return forActor.remove();
 
         // Then return actors from forActorDelayed
         return forActorDelayed.remove();
     }
-
-    Iterator<InlinedStackNode> iterator() {
-        return Iterables.concat(forActorIterable(), forActorDelayed).iterator();
-    }
-
-    void forActorAdd(InlinedStackNode stack) {
-        forActor.add(stack);
-    }
-
-    boolean forActorContains(InlinedStackNode stack) {
-        return forActor.contains(stack);
-    }
-
-    boolean forActorNonEmpty() {
-        return !forActor.isEmpty();
-    }
-
-    InlinedStackNode forActorRemove() {
-        return forActor.remove();
-    }
-
-    Iterable<InlinedStackNode> forActorIterable() {
-        return forActor;
-    }
-
 }

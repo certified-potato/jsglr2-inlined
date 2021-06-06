@@ -10,44 +10,58 @@ import java.util.Set;
  */
 public class StatCounter {
 
-    long length = 0;
+    public long length = 0;
 
     private Set<InlinedStackNode> stackNodes_ = new HashSet<>();
     private Set<InlinedStackLink> stackLinks_ = new HashSet<>();
 
-    long stackNodes = 0;
-    long stackNodesSingleLink = 0;
-    long stackLinks = 0;
-    long stackLinksRejected = 0;
+    public long stackNodes = 0;
+    public long stackNodesSingleLink = 0;
+    public long stackLinks = 0;
+    public long stackLinksRejected = 0;
 
-    long actors = 0;
+    public long actors = 0;
 
-    long doReductions = 0;
-    long doLimitedReductions = 0;
+    public long doReductions = 0;
+    public long doLimitedReductions = 0;
 
-    long doReductionsLR = 0;
-    long doReductionsDeterministicGLR = 0;
-    long doReductionsNonDeterministicGLR = 0;
+    public long doReductionsLR = 0;
+    public long doReductionsDeterministicGLR = 0;
+    public long doReductionsNonDeterministicGLR = 0;
 
-    long reducers = 0;
-    long reducersElkhound = 0;
+    public long reducers = 0;
+    public long reducersElkhound = 0;
 
-    long deterministicDepthResets = 0;
+    public long deterministicDepthResets = 0;
 
     private List<InlinedParseNode> parseNodes_ = new ArrayList<>();
 
-    long parseNodes = 0;
-    long parseNodesAmbiguous = 0;
-    long parseNodesContextFree = 0;
-    long parseNodesContextFreeAmbiguous = 0;
-    long parseNodesLexical = 0;
-    long parseNodesLexicalAmbiguous = 0;
-    long parseNodesLiteral = 0;
-    long parseNodesLiteralAmbiguous = 0;
-    long parseNodesLayout = 0;
-    long parseNodesLayoutAmbiguous = 0;
-    long parseNodesSingleDerivation = 0;
-    long characterNodes = 0;
+    public long parseNodes = 0;
+    public long parseNodesAmbiguous = 0;
+    public long parseNodesContextFree = 0;
+    public long parseNodesContextFreeAmbiguous = 0;
+    public long parseNodesLexical = 0;
+    public long parseNodesLexicalAmbiguous = 0;
+    public long parseNodesLiteral = 0;
+    public long parseNodesLiteralAmbiguous = 0;
+    public long parseNodesLayout = 0;
+    public long parseNodesLayoutAmbiguous = 0;
+    public long parseNodesSingleDerivation = 0;
+    public long characterNodes = 0;
+
+    public long activeStacksAdds = 0;
+    public long activeStacksMaxSize = 0;
+    public long activeStacksIsEmptyChecks = 0;
+    public long activeStacksFindsWithState = 0;
+    public long activeStacksForLimitedReductions = 0;
+    public long activeStacksAddAllTo = 0;
+    public long activeStacksClears = 0;
+    public long forActorAdds = 0;
+    public long forActorDelayedAdds = 0;
+    public long forActorMaxSize = 0;
+    public long forActorDelayedMaxSize = 0;
+    public long forActorContainsChecks = 0;
+    public long forActorNonEmptyChecks = 0;
 
     public void parseStart(InlinedParseState parseState) {
         length += parseState.inputStack.inputString().length();
