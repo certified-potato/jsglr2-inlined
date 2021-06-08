@@ -58,8 +58,8 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
         IParseTable parseTable = new ParseTableReader().read(testSetReader.getParseTableTerm());
 
         //@formatter:off
-        output.addRows(measure("Regular Recovery",     variantRecovery,      parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measureInlined("Inlined Recovery", parseTable));
+        output.addRows(measure("recovery",     variantRecovery,      parseTable, new StandardParserMeasureObserver<>()));
+        output.addRows(measureInlined("recoveryInlined", parseTable));
         //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
