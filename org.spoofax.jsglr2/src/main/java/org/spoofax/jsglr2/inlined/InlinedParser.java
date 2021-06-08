@@ -37,7 +37,7 @@ public class InlinedParser implements IParser<IParseForest> {
         stackManager = new InlinedStackManager(observer);
         parseForestManager = new InlinedParseForestManager(observer);
         reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager, observer);
-        failureHandler = new InlinedParseFailureHandler(observer);
+        failureHandler = new InlinedParseFailureHandler();
     }
 
     @Override

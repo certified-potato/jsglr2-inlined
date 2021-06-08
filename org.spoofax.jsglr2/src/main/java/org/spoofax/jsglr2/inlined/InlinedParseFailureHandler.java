@@ -4,11 +4,6 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 class InlinedParseFailureHandler {
-    StatCounter observing;
-
-    InlinedParseFailureHandler(StatCounter observing) {
-        this.observing = observing;
-    }
 
     boolean onFailure(InlinedParseState parseState) {
         if (!parseState.isRecovering()) {
