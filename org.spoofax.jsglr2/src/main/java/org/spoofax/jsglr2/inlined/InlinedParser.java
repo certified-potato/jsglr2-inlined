@@ -24,7 +24,7 @@ import org.spoofax.terms.util.NotImplementedException;
 
 public class InlinedParser implements IParser<IParseForest> {
 
-    public final StatCounter observer = new StatCounter();
+    //public final StatCounter observer = new StatCounter();
     protected final IParseTable parseTable;
     protected final InlinedStackManager stackManager;
     protected final InlinedParseForestManager parseForestManager;
@@ -34,17 +34,17 @@ public class InlinedParser implements IParser<IParseForest> {
 
     public InlinedParser(IParseTable table) {
         parseTable = table;
-        stackManager = new InlinedStackManager(observer);
-        parseForestManager = new InlinedParseForestManager(observer);
-        reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager, observer);
+        stackManager = new InlinedStackManager();
+        parseForestManager = new InlinedParseForestManager();
+        reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager);
         failureHandler = new InlinedParseFailureHandler();
     }
 
     @Override
     public ParseResult<IParseForest> parse(JSGLR2Request request, String previousInput, IParseForest previousResult) {
-        parseState = new InlinedParseState(request, new InlinedInputStack(request.input), observer);
+        parseState = new InlinedParseState(request, new InlinedInputStack(request.input));
 
-        observer.parseStart(parseState);
+        //observer.parseStart(parseState);
 
         InlinedStackNode initialStackNode = stackManager.createStackNode(parseTable.getStartState());
 
@@ -109,7 +109,7 @@ public class InlinedParser implements IParser<IParseForest> {
 
             ParseSuccess<IParseForest> success = new ParseSuccess<>(null, parseForest, messages);
 
-            observer.success();
+            //observer.success();
 
             return success;
         }
@@ -147,7 +147,7 @@ public class InlinedParser implements IParser<IParseForest> {
     }
 
     protected void actor(InlinedStackNode stack, InlinedParseState parseState) {
-        observer.actor();
+        //observer.actor();
         stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
 
         for (IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))

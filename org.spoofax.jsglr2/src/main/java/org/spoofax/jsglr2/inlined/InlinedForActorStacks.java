@@ -7,13 +7,13 @@ import java.util.Queue;
 
 class InlinedForActorStacks {
     
-    private final StatCounter counter;
+    //private final StatCounter counter;
     
     final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
     final Queue<InlinedStackNode> forActorDelayed;
 
-    InlinedForActorStacks(StatCounter counter) {
-        this.counter = counter;
+    InlinedForActorStacks(){//StatCounter counter) {
+        //this.counter = counter;
         
         // TODO: implement priority (see P9707 Section 8.4)
         Comparator<InlinedStackNode> stackNodePriorityComparator = (InlinedStackNode stackNode1,
@@ -25,23 +25,23 @@ class InlinedForActorStacks {
     void add(InlinedStackNode stack) {
         if (stack.state().isRejectable()) {
             forActorDelayed.add(stack);
-            counter.forActorDelayedAdds++;
+            //counter.forActorDelayedAdds++;
         }
         else {
             forActor.add(stack);
-            counter.forActorAdds++;
+            //counter.forActorAdds++;
         }
-        counter.forActorMaxSize = Math.max(counter.forActorMaxSize, forActor.size());
-        counter.forActorDelayedMaxSize = Math.max(counter.forActorDelayedMaxSize, forActorDelayed.size());
+        //counter.forActorMaxSize = Math.max(counter.forActorMaxSize, forActor.size());
+        //counter.forActorDelayedMaxSize = Math.max(counter.forActorDelayedMaxSize, forActorDelayed.size());
     }
 
     boolean contains(InlinedStackNode stack) {
-        counter.forActorContainsChecks++;
+        //counter.forActorContainsChecks++;
         return forActor.contains(stack) || forActorDelayed.contains(stack);
     }
 
     boolean nonEmpty() {
-        counter.forActorNonEmptyChecks++;
+        //counter.forActorNonEmptyChecks++;
         return !forActor.isEmpty() || !forActorDelayed.isEmpty();
     }
 

@@ -16,19 +16,19 @@ import org.spoofax.jsglr2.parser.Position;
 
 class InlinedParseForestManager {
 
-    final StatCounter observer;
+//    final StatCounter observer;
     final InlinedDisambugator disambiguator = new InlinedDisambugator();
 
-    InlinedParseForestManager(StatCounter observer) {
-        this.observer = observer;
-    }
+//    InlinedParseForestManager(StatCounter observer) {
+//        this.observer = observer;
+//    }
 
     InlinedParseNode createParseNode(InlinedParseState parseState, InlinedStackNode stack, IProduction production,
             InlinedDerivation firstDerivation) {
         InlinedParseNode parseNode = new InlinedParseNode(sumWidth(firstDerivation.parseForests()), production,
                 firstDerivation);
 
-        observer.createParseNode(parseNode);
+        //observer.createParseNode(parseNode);
 
         return parseNode;
     }
@@ -55,7 +55,7 @@ class InlinedParseForestManager {
     InlinedCharacterNode createCharacterNode(InlinedParseState parseState) {
         InlinedCharacterNode characterNode = new InlinedCharacterNode(parseState.inputStack.getChar());
 
-        observer.createCharacterNode();
+        //observer.createCharacterNode();
 
         return characterNode;
     }

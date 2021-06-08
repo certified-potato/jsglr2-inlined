@@ -8,19 +8,19 @@ import org.metaborg.parsetable.states.IState;
 
 class InlinedActiveStacks{
     
-    private final StatCounter counter;
+//    private final StatCounter counter;
         
     ArrayList<InlinedStackNode> activeStacks;
     
-    InlinedActiveStacks(StatCounter counter) {
-        this.counter = counter;
+    InlinedActiveStacks() {//StatCounter counter) {
+//        this.counter = counter;
         this.activeStacks = new ArrayList<>();
     }
 
     void add(InlinedStackNode stack) {
         activeStacks.add(stack);
-        counter.activeStacksAdds++;
-        counter.activeStacksMaxSize = Math.max(counter.activeStacksMaxSize, activeStacks.size());
+        //counter.activeStacksAdds++;
+        //counter.activeStacksMaxSize = Math.max(counter.activeStacksMaxSize, activeStacks.size());
     }
 
     InlinedStackNode getSingle() {
@@ -28,12 +28,12 @@ class InlinedActiveStacks{
     }
 
     boolean isEmpty() {
-        counter.activeStacksIsEmptyChecks++;
+        //counter.activeStacksIsEmptyChecks++;
         return activeStacks.isEmpty();
     }
 
     InlinedStackNode findWithState(IState state) {
-        counter.activeStacksFindsWithState++;
+        //counter.activeStacksFindsWithState++;
         for(InlinedStackNode stack : activeStacks)
             if(stack.state().id() == state.id())
                 return stack;
@@ -42,7 +42,7 @@ class InlinedActiveStacks{
     }
 
     Iterable<InlinedStackNode> forLimitedReductions(InlinedForActorStacks forActorStacks) {
-        counter.activeStacksForLimitedReductions++;
+        //counter.activeStacksForLimitedReductions++;
         return () -> new Iterator<InlinedStackNode>() {
 
             int index = 0;
@@ -72,13 +72,13 @@ class InlinedActiveStacks{
     }
 
     void addAllTo(InlinedForActorStacks other) {
-        counter.activeStacksAddAllTo++;
+        //counter.activeStacksAddAllTo++;
         for(InlinedStackNode stack : activeStacks)
             other.add(stack);
     }
 
     void clear() {
-        counter.activeStacksClears++;
+        //counter.activeStacksClears++;
         activeStacks.clear();
     }
 }

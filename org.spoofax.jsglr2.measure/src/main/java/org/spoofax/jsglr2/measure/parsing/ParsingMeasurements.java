@@ -59,28 +59,28 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
 
         //@formatter:off
         output.addRows(measure("recovery",     variantRecovery,      parseTable, new StandardParserMeasureObserver<>()));
-        output.addRows(measureInlined("recoveryInlined", parseTable));
+        //output.addRows(measureInlined("recoveryInlined", parseTable));
         //@formatter:on
 
         output.write(config.prefix(testSet) + "parsing.csv");
     }
 
-    private List<Map<ParsingMeasurement, String>> measureInlined(String name, IParseTable parseTable) throws IOException {
-    	return testSetReader.getInputBatches().map(inputBatch -> {
-            InlinedParser parser = new InlinedParser(parseTable);
-
-            try {
-                for(StringInput input : inputBatch.inputs)
-                    parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
-            } catch(Exception e) {
-            	e.printStackTrace();
-                throw new IllegalStateException("Inlined variant measurement failed: "
-                    + e.getClass().getSimpleName() + ": " + e.getMessage());
-            }
-
-            return toOutputInlined(name, inputBatch, parser.observer);
-        }).collect(Collectors.toList());
-	}
+//    private List<Map<ParsingMeasurement, String>> measureInlined(String name, IParseTable parseTable) throws IOException {
+//    	return testSetReader.getInputBatches().map(inputBatch -> {
+//            InlinedParser parser = new InlinedParser(parseTable);
+//
+//            try {
+//                for(StringInput input : inputBatch.inputs)
+//                    parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
+//            } catch(Exception e) {
+//            	e.printStackTrace();
+//                throw new IllegalStateException("Inlined variant measurement failed: "
+//                    + e.getClass().getSimpleName() + ": " + e.getMessage());
+//            }
+//
+//            return toOutputInlined(name, inputBatch, parser.observer);
+//        }).collect(Collectors.toList());
+//	}
     
 	private
 //@formatter:off

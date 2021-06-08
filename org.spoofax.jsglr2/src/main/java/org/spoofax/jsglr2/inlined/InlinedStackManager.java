@@ -8,16 +8,16 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 
 public class InlinedStackManager {
 
-    protected final StatCounter observer;
-
-    public InlinedStackManager(StatCounter observer) {
-        this.observer = observer;
-    }
+//    protected final StatCounter observer;
+//
+//    public InlinedStackManager(StatCounter counter) {
+//        this.observer = observer;
+//    }
 
     public InlinedStackNode createStackNode(IState state) {
         InlinedStackNode newStackNode = new InlinedStackNode(state);
 
-        observer.createStackNode(newStackNode);
+        //observer.createStackNode(newStackNode);
 
         return newStackNode;
     }
@@ -26,7 +26,7 @@ public class InlinedStackManager {
             IParseForest parseForest) {
         InlinedStackLink link = from.addLink(to, parseForest);
 
-        observer.createStackLink(link);
+        //observer.createStackLink(link);
 
         return link;
     }
@@ -34,7 +34,7 @@ public class InlinedStackManager {
     public void rejectStackLink(InlinedStackLink link) {
         link.reject();
 
-        observer.rejectStackLink();
+        //observer.rejectStackLink();
     }
 
     public InlinedStackLink findDirectLink(InlinedStackNode from, InlinedStackNode to) {
