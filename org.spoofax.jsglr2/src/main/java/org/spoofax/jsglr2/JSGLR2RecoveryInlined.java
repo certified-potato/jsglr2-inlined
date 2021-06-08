@@ -39,7 +39,7 @@ public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
             ParseSuccess<IParseForest> suc = (ParseSuccess<IParseForest>) parse;
             ImplodeResult<Tokens, Void, IStrategoTerm> implode = imploder.implode(request, suc.parseResult);
             Tokens tokens = implode.intermediateResult();
-            suc.postProcessMessages(tokens);
+            suc.messages = parser.postProcessMessages(suc.messages, tokens); //replaces suc.postProcessMessages
             return new JSGLR2Success<IStrategoTerm>(request, (IStrategoTerm) implode.ast(), tokens,
                     implode.isAmbiguous(), suc.messages);
         } else if (parse instanceof ParseFailure<?>) {

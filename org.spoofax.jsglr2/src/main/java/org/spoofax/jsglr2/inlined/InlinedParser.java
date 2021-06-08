@@ -1,6 +1,7 @@
 package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.metaborg.parsetable.IParseTable;
@@ -18,6 +19,7 @@ import org.spoofax.jsglr2.parser.result.ParseFailure;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
+import org.spoofax.jsglr2.tokens.Tokens;
 import org.spoofax.terms.util.NotImplementedException;
 
 public class InlinedParser implements IParser<IParseForest> {
@@ -212,5 +214,9 @@ public class InlinedParser implements IParser<IParseForest> {
 
     protected void addForShifter(InlinedParseState parseState, InlinedStackNode stack, IState shiftState) {
         parseState.forShifter.add(new InlinedForShifterElement(stack, shiftState));
+    }
+
+    public Collection<Message> postProcessMessages(Collection<Message> messages, Tokens tokens) {
+        return parseState.postProcessMessages(messages, tokens);        
     }
 }
