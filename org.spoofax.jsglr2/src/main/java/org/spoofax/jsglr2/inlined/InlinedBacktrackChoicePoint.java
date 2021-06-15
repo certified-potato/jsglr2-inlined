@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 class InlinedBacktrackChoicePoint {
     
-    final int offset;
-    final InlinedInputStack inputStack;
-    final ArrayList<InlinedStackNode> activeStacks;
+    private final int offset;
+    private final InlinedInputStack inputStack;
+    private final ArrayList<InlinedStackNode> activeStacks;
 
     InlinedBacktrackChoicePoint(InlinedInputStack inputStack, InlinedActiveStacks activeStacks) {
         this.offset = inputStack.offset();

@@ -9,8 +9,8 @@ class InlinedForActorStacks {
     
     //private final StatCounter counter;
     
-    final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
-    final Queue<InlinedStackNode> forActorDelayed;
+    private final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
+    private final Queue<InlinedStackNode> forActorDelayed;
 
     InlinedForActorStacks(){//StatCounter counter) {
         //this.counter = counter;

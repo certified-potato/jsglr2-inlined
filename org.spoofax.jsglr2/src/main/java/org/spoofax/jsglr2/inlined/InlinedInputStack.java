@@ -10,9 +10,9 @@ import org.spoofax.jsglr2.parser.Position;
  * Keeps track which character the parser is currently parsing, along the input text
  */
 class InlinedInputStack implements IActionQuery {
-    protected final String inputString;
-    protected final int inputLength;
-    protected int currentOffset = 0;
+    private final String inputString;
+    private final int inputLength;
+    private int currentOffset = 0;
     int currentChar; // Current ASCII char in range [0, MAX_CHAR] or EOF_INT
 
     InlinedInputStack(String inputString) {

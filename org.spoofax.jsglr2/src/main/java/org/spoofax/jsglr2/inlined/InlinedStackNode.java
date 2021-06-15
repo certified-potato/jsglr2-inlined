@@ -7,12 +7,25 @@ import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
+/**
+ * Represents an entry in the stack: how much has the parser parsed already, and how it parsed the text.
+ */
 public class InlinedStackNode {
 
-    // state depends on the parsetable
-    public final IState state;
+    /**
+     * The state (cell, entry) of the parse table.
+     * It states how to react to the next character.
+     * I.E. whether to shift, reduce, or accept.
+     */
+    private final IState state;
 
+    /**
+     * A link down the stack, towards text start.
+     */
     private InlinedStackLink firstLink;
+    /**
+     * Alternative links in case of ambigous parse.
+     */
     private ArrayList<InlinedStackLink> otherLinks;
 
     InlinedStackNode(IState state) {
@@ -23,7 +36,7 @@ public class InlinedStackNode {
         return state;
     }
 
-    InlinedStackLink addLink(InlinedStackLink link) {
+    private InlinedStackLink addLink(InlinedStackLink link) {
         if (firstLink == null)
             firstLink = link;
         else {
@@ -49,16 +62,11 @@ public class InlinedStackNode {
             return SingleElementWithListIterable.of(firstLink, otherLinks);
         }
     }
-    
-    int getLinksSize() {
-        if (otherLinks == null) {
-            return 1;
-        } else {
-            return 1 + otherLinks.size();
-        }
-    }
-    
-
+     
+    /**
+     * @return figure whether all links have been rejected, that is their associated production rules are of type REJECT
+     * If this node has no links (because it is the start state), then this function returns false.
+     */
     boolean allLinksRejected() {
         if (firstLink == null || !firstLink.isRejected())
             return false;

@@ -10,11 +10,11 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 public class InlinedCycleDetector implements IInlinedParseNodeVisitor {
-    Collection<Message> messages;
-    ArrayList<InlinedParseNode> spine = new ArrayList<>();
-    public ParseFailureCause failureCause = null;
+    private Collection<Message> messages;
+    private ArrayList<InlinedParseNode> spine = new ArrayList<>();
+    ParseFailureCause failureCause = null;
 
-    public InlinedCycleDetector(Collection<Message> messages) {
+    InlinedCycleDetector(Collection<Message> messages) {
         this.messages = messages;
     }
 
@@ -34,7 +34,7 @@ public class InlinedCycleDetector implements IInlinedParseNodeVisitor {
         }
     }
 
-    public boolean cycleDetected() {
+    boolean cycleDetected() {
         return failureCause != null;
     }
 

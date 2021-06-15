@@ -3,12 +3,12 @@ package org.spoofax.jsglr2.inlined;
 import java.util.HashMap;
 
 public class InlinedRecoveryJob {
-    public int offset;
-    public int iteration;
-    final int iterationsQuota;
+    int offset;
+    int iteration;
+    int iterationsQuota;
     final long timeoutAt;
-    public HashMap<InlinedStackNode, Integer> quota = new HashMap<>();
-    public HashMap<InlinedStackNode, Integer> lastRecoveredOffset = new HashMap<>();
+    HashMap<InlinedStackNode, Integer> quota = new HashMap<>();
+    HashMap<InlinedStackNode, Integer> lastRecoveredOffset = new HashMap<>();
 
     public InlinedRecoveryJob(int offset, int iterationsQuota, int timeout) {
         this.offset = offset;
@@ -17,15 +17,15 @@ public class InlinedRecoveryJob {
         this.timeoutAt = System.currentTimeMillis() + timeout;
     }
 
-    public boolean hasNextIteration() {
+    boolean hasNextIteration() {
         return iteration + 1 < iterationsQuota;
     }
 
-    public int nextIteration() {
+    int nextIteration() {
         return ++iteration;
     }
 
-    public void initQuota(InlinedActiveStacks activeStacks) {
+    void initQuota(InlinedActiveStacks activeStacks) {
         int quotaPerStack = iteration + 1;
 
         quota.clear();
@@ -49,7 +49,7 @@ public class InlinedRecoveryJob {
             lastRecoveredOffset.merge(stack, offset, Math::max);
     }
 
-    public boolean timeout() {
+    boolean timeout() {
         return System.currentTimeMillis() >= timeoutAt;
     }
 

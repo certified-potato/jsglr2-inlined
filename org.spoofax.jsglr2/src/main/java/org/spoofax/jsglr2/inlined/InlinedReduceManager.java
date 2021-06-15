@@ -5,15 +5,18 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
+/**
+ * Contains the reduction method.
+ */
 public class InlinedReduceManager {
 
-    protected final IParseTable parseTable;
-    protected final InlinedStackManager stackManager;
-    protected final InlinedParseForestManager parseForestManager;
-    protected final InlinedReducer reducer;
+    private final IParseTable parseTable;
+    private final InlinedStackManager stackManager;
+    private final InlinedParseForestManager parseForestManager;
+    private final InlinedReducer reducer;
     //private final StatCounter observer;
 
-    public InlinedReduceManager(IParseTable parseTable, InlinedStackManager stackManager,
+    InlinedReduceManager(IParseTable parseTable, InlinedStackManager stackManager,
             InlinedParseForestManager parseForestManager) { //, StatCounter observer) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
@@ -21,18 +24,33 @@ public class InlinedReduceManager {
         this.reducer = new InlinedReducer(stackManager, parseForestManager);
         //this.observer = observer;
     }
-
-    public void doReductions(InlinedParseState parseState, InlinedStackNode activeStack, IReduce reduce) {
+    
+    /**
+     * Main entry point for the reduce part: walk back along the stack, and try to apply reduction rule. 
+     * @param parseState The current state of the parser.
+     * @param activeStack Which stack node to do the reduction on.
+     * @param reduce The reduction rule to apply.
+     */
+    void doReductions(InlinedParseState parseState, InlinedStackNode activeStack, IReduce reduce) {
+        //not all reduction actions need to actually do anything. Check that first.
         if (ignoreReduceAction(parseState, activeStack, reduce))
             return;
 
         //observer.doReductions();
-
+        //do the reduction via all links of this stack node
         doReductionsHelper(parseState, activeStack, reduce, null);
     }
-
+    
+    /**
+     * Like {@linkplain doReductions}, but this method only reduces via a specific link, rather than all of them.
+     * @param parseState The current state of the parser.
+     * @param activeStack Which stack node to do the reduction on.
+     * @param reduce The reduction rule to apply.
+     * @param throughLink Via which link of {@linkplain activeStack}} to reduce.
+     */
     private void doLimitedReductions(InlinedParseState parseState, InlinedStackNode stack, IReduce reduce,
             InlinedStackLink throughLink) {
+        //not all reduction actions need to actually do anything. Check that first.
         if (ignoreReduceAction(parseState, stack, reduce))
             return;
 
@@ -40,7 +58,10 @@ public class InlinedReduceManager {
 
         doReductionsHelper(parseState, stack, reduce, throughLink);
     }
-
+    
+    /**
+     * Check whether the reduction rule actually needs to be applied.
+     */
     private boolean ignoreReduceAction(InlinedParseState parseState, InlinedStackNode stack, IReduce reduce) {
         if (reduce.production().isCompletion())
             return true;
@@ -57,13 +78,23 @@ public class InlinedReduceManager {
         return false;
     }
 
-    protected void doReductionsHelper(InlinedParseState parseState, InlinedStackNode activeStack, IReduce reduce,
+    /**
+     * Perform reductions through all the paths of the stack graph.
+     * @param parseState The current state of the parser.
+     * @param activeStack The stack node to start the reductions from
+     * @param reduce the production rule (e.g. "A -> bc") to reduce by
+     * @param throughLink if not null, only reduce through paths that contain this link
+     */
+    private void doReductionsHelper(InlinedParseState parseState, InlinedStackNode activeStack, IReduce reduce,
             InlinedStackLink throughLink) {
         for (InlinedStackPath path : stackManager.findAllPathsOfLength(activeStack, reduce.arity())) {
             if (throughLink == null || path.contains(throughLink)) {
+                //get the stack node where the reduction stops.
                 InlinedStackNode originStack = path.head();
+                //grab the parse forest associated with the path
                 IParseForest[] parseNodes = stackManager.getParseForests(parseForestManager, path);
-
+                
+                //reduce
                 reducer(parseState, activeStack, originStack, reduce, parseNodes);
             }
         }
@@ -78,12 +109,17 @@ public class InlinedReduceManager {
      * exists, the link to it can also already exist. Based on the existence of the
      * stack with the goto state and the link to it, different actions are
      * performed.
+     * @param parseState The current state of the parser.
+     * @param activeStack The stack node to reduce the reductions from.
+     * @param originStack The stack node the reduction should end up with.
+     * @param reduce The reduction rule.
+     * @param The parse forest associated with the current path, that needs to be updated.
      */
-    protected void reducer(InlinedParseState parseState, InlinedStackNode activeStack, InlinedStackNode originStack,
+    private void reducer(InlinedParseState parseState, InlinedStackNode activeStack, InlinedStackNode originStack,
             IReduce reduce, IParseForest[] parseForests) {
+        //check whether the state that will be reduced into, is already contained in the active stack.
         int gotoId = originStack.state().getGotoId(reduce.production().id());
         IState gotoState = parseTable.getState(gotoId);
-
         InlinedStackNode gotoStack = parseState.activeStacks.findWithState(gotoState);
 
         if (gotoStack != null) {
@@ -92,6 +128,8 @@ public class InlinedReduceManager {
             //observer.reducers++;
             
             if (directLink != null) {
+                //the goto state is indeed there, and there is even a link already!
+                //
                 reducer.reducerExistingStackWithDirectLink(parseState, reduce, directLink, parseForests);
             } else {
                 InlinedStackLink link = reducer.reducerExistingStackWithoutDirectLink(parseState, reduce, gotoStack,

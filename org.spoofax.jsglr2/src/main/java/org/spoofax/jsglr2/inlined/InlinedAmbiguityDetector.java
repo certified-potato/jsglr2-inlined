@@ -12,7 +12,7 @@ public class InlinedAmbiguityDetector implements IInlinedParseNodeVisitor {
     private final String inputString;
     private final Collection<Message> messages;
 
-    public InlinedAmbiguityDetector(String inputString, Collection<Message> messages) {
+    InlinedAmbiguityDetector(String inputString, Collection<Message> messages) {
         this.inputString = inputString;
         this.messages = messages;
     }

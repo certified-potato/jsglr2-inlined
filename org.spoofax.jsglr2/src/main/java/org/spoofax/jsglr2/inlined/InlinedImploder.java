@@ -18,7 +18,7 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
 public class InlinedImploder {
-    final TokenizedTermTreeFactory treeFactory = new TokenizedTermTreeFactory();
+    private final TokenizedTermTreeFactory treeFactory = new TokenizedTermTreeFactory();
 
     public ImplodeResult<Tokens, Void, IStrategoTerm> implode(JSGLR2Request request, IParseForest parseForest) {
         Tokens tokens = new Tokens(request.input, request.fileName);
@@ -36,7 +36,7 @@ public class InlinedImploder {
         return new ImplodeResult<>(tokens, null, tree.tree, tree.containsAmbiguity);
     }
 
-    static class SubTree {
+    private static class SubTree {
 
         IStrategoTerm tree;
         Position endPosition;
@@ -54,7 +54,7 @@ public class InlinedImploder {
 
     }
 
-    SubTree implodeParseNode(IParseForest parseForest, Tokens tokens, Position startPosition) {
+    private SubTree implodeParseNode(IParseForest parseForest, Tokens tokens, Position startPosition) {
 
         if (parseForest instanceof InlinedCharacterNode) {
             int width = parseForest.width();
@@ -125,7 +125,7 @@ public class InlinedImploder {
         }
     }
 
-    SubTree implodeDerivation(Tokens tokens, InlinedDerivation derivation, Position startPosition) {
+    private SubTree implodeDerivation(Tokens tokens, InlinedDerivation derivation, Position startPosition) {
         IProduction production = derivation.production();
 
         if (!production.isContextFree())
@@ -161,7 +161,7 @@ public class InlinedImploder {
         return subTree;
     }
 
-    SubTree implodeChildParseNodes(Tokens tokens, List<IStrategoTerm> childASTs,
+    private SubTree implodeChildParseNodes(Tokens tokens, List<IStrategoTerm> childASTs,
             Iterable<IParseForest> childParseForests, IProduction production, List<IToken> unboundTokens,
             Position startPosition) {
         SubTree result = new SubTree(null, startPosition, null, null, false);
@@ -239,7 +239,7 @@ public class InlinedImploder {
         return result;
     }
 
-    IStrategoTerm createContextFreeTerm(IProduction production, List<IStrategoTerm> childASTs, IToken leftToken,
+    private IStrategoTerm createContextFreeTerm(IProduction production, List<IStrategoTerm> childASTs, IToken leftToken,
             IToken rightToken) {
         String constructor = production.constructor();
 
@@ -255,7 +255,7 @@ public class InlinedImploder {
             return treeFactory.createTuple(childASTs, leftToken, rightToken);
     }
 
-    IStrategoTerm createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
+    private IStrategoTerm createLexicalTerm(IProduction production, String lexicalString, IToken lexicalToken) {
         IStrategoTerm lexicalTerm;
 
         if (production.lhs() instanceof IMetaVarSymbol)
@@ -269,7 +269,7 @@ public class InlinedImploder {
         return lexicalTerm;
     }
 
-    IStrategoTerm createCharacterTerm(int character, IToken lexicalToken) {
+    private IStrategoTerm createCharacterTerm(int character, IToken lexicalToken) {
         IStrategoTerm term = treeFactory.createCharacterTerminal(character, lexicalToken);
 
         tokenTreeBinding(lexicalToken, term);
@@ -277,11 +277,11 @@ public class InlinedImploder {
         return term;
     }
 
-    void tokenTreeBinding(IToken token, IStrategoTerm term) {
+    private void tokenTreeBinding(IToken token, IStrategoTerm term) {
         token.setAstNode(term);
     }
 
-    protected List<List<IParseForest>> implodeAmbiguousLists(List<InlinedDerivation> derivations) {
+    private List<List<IParseForest>> implodeAmbiguousLists(List<InlinedDerivation> derivations) {
         List<List<IParseForest>> alternatives = new ArrayList<>();
 
         for (InlinedDerivation derivation : derivations) {
@@ -315,7 +315,7 @@ public class InlinedImploder {
         return alternatives;
     }
 
-    InlinedParseNode implodeInjection(InlinedParseNode parseNode) {
+    private InlinedParseNode implodeInjection(InlinedParseNode parseNode) {
         for (InlinedDerivation derivation : parseNode.getDerivations()) {
             if (derivation.parseForests().length == 1 && (derivation.parseForests()[0] instanceof IParseNode)) {
                 InlinedParseNode injectedParseNode = (InlinedParseNode) derivation.parseForests()[0];
@@ -331,7 +331,7 @@ public class InlinedImploder {
         return parseNode;
     }
 
-    List<InlinedDerivation> applyDisambiguationFilters(InlinedParseNode parseNode) {
+    private List<InlinedDerivation> applyDisambiguationFilters(InlinedParseNode parseNode) {
         if (!parseNode.isAmbiguous())
             return Collections.singletonList(parseNode.getFirstDerivation());
 

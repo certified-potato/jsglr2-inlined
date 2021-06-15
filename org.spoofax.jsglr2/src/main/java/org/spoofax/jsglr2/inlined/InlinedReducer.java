@@ -9,23 +9,37 @@ public class InlinedReducer {
     private final InlinedStackManager stackManager;
     private final InlinedParseForestManager parseForestManager;
 
-    public InlinedReducer(InlinedStackManager stackManager, InlinedParseForestManager parseForestManager) {
+    InlinedReducer(InlinedStackManager stackManager, InlinedParseForestManager parseForestManager) {
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
     }
 
-    protected boolean skipParseNodeCreation(InlinedParseState parseState, IReduce reduce) {
+    private boolean skipParseNodeCreation(InlinedParseState parseState, IReduce reduce) {
         return reduce.production().isSkippableInParseForest() && !parseState.isRecovering();
     }
-
-    public void reducerExistingStackWithDirectLink(InlinedParseState parseState, IReduce reduce,
+    
+    /**
+     * Reduce the parse forest nodes, while following a state transition that is already present.
+     * @param parseState The current state of the parser.
+     * @param reduce The reduction rule.
+     * @param existingDirectLinkToActiveStateWithGoto The state transition to follow.
+     * @param parseForests the nodes that will be reduced into a single parse node.
+     */
+    void reducerExistingStackWithDirectLink(InlinedParseState parseState, IReduce reduce,
             InlinedStackLink existingDirectLinkToActiveStateWithGoto, IParseForest[] parseForests) {
+        // because the link already exists, there is also a node associated with it.
+        // this node can never be a character node, because then either the link does not exist yet,
+        // or this link is not part of the active stacks anymore.
         InlinedParseNode parseNode = (InlinedParseNode) existingDirectLinkToActiveStateWithGoto.parseForest;
 
         if (reduce.isRejectProduction())
+            //instead of reducing, reject this link, mark it as invalid.
             stackManager.rejectStackLink(existingDirectLinkToActiveStateWithGoto);
         else if (!existingDirectLinkToActiveStateWithGoto.isRejected()
                 && !reduce.production().isSkippableInParseForest()) {
+            // because the parse node already exists, with its own derivation
+            // a new 'alternative' derivation is added to that node. The two derivations are compared,
+            // and the best one is is kept.
             InlinedDerivation derivation = parseForestManager.createDerivation(parseState,
                     existingDirectLinkToActiveStateWithGoto.to, reduce.production(), reduce.productionType(),
                     parseForests);
@@ -33,7 +47,7 @@ public class InlinedReducer {
         }
     }
 
-    public InlinedStackLink reducerExistingStackWithoutDirectLink(InlinedParseState parseState, IReduce reduce,
+    InlinedStackLink reducerExistingStackWithoutDirectLink(InlinedParseState parseState, IReduce reduce,
             InlinedStackNode existingActiveStackWithGotoState, InlinedStackNode stack,
             IParseForest[] parseForests) {
         InlinedStackLink newDirectLinkToActiveStateWithGoto;
@@ -54,7 +68,7 @@ public class InlinedReducer {
         return newDirectLinkToActiveStateWithGoto;
     }
 
-    public InlinedStackNode reducerNoExistingStack(InlinedParseState parseState, IReduce reduce, InlinedStackNode stack,
+    InlinedStackNode reducerNoExistingStack(InlinedParseState parseState, IReduce reduce, InlinedStackNode stack,
             IState gotoState, IParseForest[] parseForests) {
         InlinedStackNode newStackWithGotoState = stackManager.createStackNode(gotoState);
 

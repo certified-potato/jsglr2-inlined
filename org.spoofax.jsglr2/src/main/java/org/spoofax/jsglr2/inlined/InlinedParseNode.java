@@ -8,12 +8,22 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
+/**
+ * Represents a non-terminal in a CFG.
+ */
 class InlinedParseNode implements IParseForest {
     private final int width;
     private final IProduction production;
-    private InlinedDerivation firstDerivation;
-    private ArrayList<InlinedDerivation> otherDerivations;
+    private InlinedDerivation firstDerivation; //the 'main' derivation rule
+    private ArrayList<InlinedDerivation> otherDerivations; //other valid derivation rules
 
+    /**
+     * Create a new Parse node
+     * @param width how many other nodes this node is parallel with.
+     * @param production The name of the non-terminal, stored in the left hand side of the production/derivation rule.
+     * The rule itself equals the one of the derivation (usually).
+     * @param firstDerivation The derivation that leads to/from this state.
+     */
     InlinedParseNode(int width, IProduction production, InlinedDerivation firstDerivation) {
         this.width = width;
         this.production = production;

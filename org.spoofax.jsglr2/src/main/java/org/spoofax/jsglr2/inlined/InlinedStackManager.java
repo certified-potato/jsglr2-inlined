@@ -14,7 +14,7 @@ public class InlinedStackManager {
 //        this.observer = observer;
 //    }
 
-    public InlinedStackNode createStackNode(IState state) {
+    InlinedStackNode createStackNode(IState state) {
         InlinedStackNode newStackNode = new InlinedStackNode(state);
 
         //observer.createStackNode(newStackNode);
@@ -22,7 +22,7 @@ public class InlinedStackManager {
         return newStackNode;
     }
 
-    public InlinedStackLink createStackLink(InlinedParseState parseState, InlinedStackNode from, InlinedStackNode to,
+    InlinedStackLink createStackLink(InlinedParseState parseState, InlinedStackNode from, InlinedStackNode to,
             IParseForest parseForest) {
         InlinedStackLink link = from.addLink(to, parseForest);
 
@@ -31,13 +31,13 @@ public class InlinedStackManager {
         return link;
     }
 
-    public void rejectStackLink(InlinedStackLink link) {
+    void rejectStackLink(InlinedStackLink link) {
         link.reject();
 
         //observer.rejectStackLink();
     }
 
-    public InlinedStackLink findDirectLink(InlinedStackNode from, InlinedStackNode to) {
+    InlinedStackLink findDirectLink(InlinedStackNode from, InlinedStackNode to) {
         for (InlinedStackLink link : from.getLinks()) {
             if (link.to == to)
                 return link;
@@ -46,7 +46,7 @@ public class InlinedStackManager {
         return null;
     }
 
-    public List<InlinedStackPath> findAllPathsOfLength(InlinedStackNode stack, int length) {
+    List<InlinedStackPath> findAllPathsOfLength(InlinedStackNode stack, int length) {
         List<InlinedStackPath> paths = new ArrayList<>();
 
         InlinedStackPath pathsOrigin = new InlinedStackPath.Empty(stack);
@@ -72,7 +72,7 @@ public class InlinedStackManager {
         }
     }
 
-    public IParseForest[] getParseForests(InlinedParseForestManager parseForestManager, InlinedStackPath pathBegin) {
+    IParseForest[] getParseForests(InlinedParseForestManager parseForestManager, InlinedStackPath pathBegin) {
         IParseForest[] res = new IParseForest[pathBegin.length];
 
         InlinedStackPath path = pathBegin;

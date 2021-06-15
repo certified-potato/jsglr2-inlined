@@ -9,7 +9,6 @@ import java.util.Stack;
 import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.JSGLR2Request;
-import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.Position;
@@ -28,7 +27,7 @@ class InlinedParseForestManager {
         InlinedParseNode parseNode = new InlinedParseNode(sumWidth(firstDerivation.parseForests()), production,
                 firstDerivation);
 
-        //observer.createParseNode(parseNode);
+        // observer.createParseNode(parseNode);
 
         return parseNode;
     }
@@ -55,7 +54,7 @@ class InlinedParseForestManager {
     InlinedCharacterNode createCharacterNode(InlinedParseState parseState) {
         InlinedCharacterNode characterNode = new InlinedCharacterNode(parseState.inputStack.getChar());
 
-        //observer.createCharacterNode();
+        // observer.createCharacterNode();
 
         return characterNode;
     }
@@ -70,6 +69,17 @@ class InlinedParseForestManager {
         return topParseNode;
     }
 
+    /**
+     * Filter out derivations from the parse node that don't have a specific
+     * left-hand-side (non-)terminal symbol
+     * 
+     * @param topNode     The node to filter out of.
+     * @param startSymbol The name of the non-terminal to filter for.
+     * @param parseState  The current state of the parse.
+     * @return A new parse node that only has derivations that have the specific
+     *         symbol on the left hand side. If none exist, it returns null
+     *         otherwise.
+     */
     InlinedParseNode filterStartSymbol(InlinedParseNode topNode, String startSymbol, InlinedParseState parseState) {
         List<InlinedDerivation> derivationsWithStartSymbol = new ArrayList<>();
 
@@ -181,10 +191,4 @@ class InlinedParseForestManager {
         }
     }
 
-    public static SourceRegion visitRegion(String inputString, Position startPosition, Position endPosition) {
-        if (endPosition.offset > startPosition.offset)
-            endPosition = endPosition.previous(inputString);
-
-        return new SourceRegion(startPosition, endPosition);
-    }
 }

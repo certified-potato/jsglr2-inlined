@@ -32,9 +32,18 @@ class InlinedParseState {
 
     InlinedInputStack inputStack;
     ParsingMode mode;
-
-    public final InlinedActiveStacks activeStacks;
-    public final InlinedForActorStacks forActorStacks;
+    
+    /**
+     * 
+     */
+    final InlinedActiveStacks activeStacks;
+    /**
+     * List of "right-most" stack nodes that can be processed in the current parse loop round
+     */
+    final InlinedForActorStacks forActorStacks;
+    /**
+     * List of shift state transitions that need to be processed.
+     */
     final ArrayDeque<InlinedForShifterElement> forShifter = new ArrayDeque<>();
 
     InlinedStackNode acceptingStack;

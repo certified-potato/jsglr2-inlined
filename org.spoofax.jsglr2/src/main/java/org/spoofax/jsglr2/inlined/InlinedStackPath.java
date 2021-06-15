@@ -1,61 +1,82 @@
 package org.spoofax.jsglr2.inlined;
 
+/**
+ * Represents a valid path through the stack graph, represented as a linked list.
+ */
 public abstract class InlinedStackPath {
     
-    public final int length;
+    /**
+     * Length of the path.
+     */
+    final int length;
 
-    protected InlinedStackPath(int length) {
+    InlinedStackPath(int length) {
         this.length = length;
     }
     
-    public abstract boolean isEmpty();
+    /**
+     * @return Whether there are nodes in the path after this one.  
+     */
+    abstract boolean isEmpty();
 
-    public abstract InlinedStackNode head();
+    /**
+     * @return The stack node held in this path node.
+     */
+    abstract InlinedStackNode head();
 
-    public abstract boolean contains(InlinedStackLink link);
+    /**
+     * @return look up whether a specific link exists down this path.
+     */
+    abstract boolean contains(InlinedStackLink link);
     
-    public static final class Empty extends InlinedStackPath {
+    /**
+     * A path that contains a single stack node and stops there.
+     */
+    static final class Empty extends InlinedStackPath {
 
         private final InlinedStackNode stackNode;
         
-        protected Empty(InlinedStackNode stackNode) {
+        Empty(InlinedStackNode stackNode) {
             super(0);
             this.stackNode = stackNode;
         }
         
-        @Override public boolean isEmpty() {
+        @Override boolean isEmpty() {
             return true;
         }
 
-        @Override public InlinedStackNode head() {
+        @Override InlinedStackNode head() {
             return this.stackNode;
         }
 
-        @Override public boolean contains(InlinedStackLink link) {
+        @Override boolean contains(InlinedStackLink link) {
             return false;
         }
     }
     
-    public static final class NonEmpty extends InlinedStackPath {
+    /**
+     * A path that has multiple nodes in its list, realized as a linked list.
+     */
+    static final class NonEmpty extends InlinedStackPath {
 
-        public final InlinedStackPath tail;
-        public final InlinedStackLink link;
+        final InlinedStackPath tail;
+        final InlinedStackLink link;
 
-        protected NonEmpty(InlinedStackLink stackLink, InlinedStackPath tail) {
+        NonEmpty(InlinedStackLink stackLink, InlinedStackPath tail) {
             super(tail.length + 1);
             this.tail = tail;
             this.link = stackLink;
         }
 
-        @Override public boolean isEmpty() {
+        @Override boolean isEmpty() {
             return false;
         }
 
-        @Override public InlinedStackNode head() {
+        @Override InlinedStackNode head() {
             return this.link.to;
         }
 
-        @Override public boolean contains(InlinedStackLink link) {
+        @Override boolean contains(InlinedStackLink link) {
             return this.link == link || (this.tail != null && this.tail.contains(link));
         }
         

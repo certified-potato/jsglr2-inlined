@@ -14,7 +14,7 @@ public class InlinedNonAssocDetector implements IInlinedParseNodeVisitor {
 
     private ParseFailureCause.Type failure = null;
 
-    public InlinedNonAssocDetector(Collection<Message> messages) {
+    InlinedNonAssocDetector(Collection<Message> messages) {
         this.messages = messages;
     }
 

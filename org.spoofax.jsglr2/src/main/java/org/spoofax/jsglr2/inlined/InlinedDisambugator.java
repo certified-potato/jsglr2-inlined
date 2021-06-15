@@ -70,7 +70,7 @@ class InlinedDisambugator {
         return cost;
     }
 
-    static class RecoverCost {
+    private static class RecoverCost {
         int cost, firstRecoveryOffset;
         boolean containsCycle;
 
