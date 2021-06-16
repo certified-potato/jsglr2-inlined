@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.inlined;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
-class InlinedParseFailureHandler {
+final class InlinedParseFailureHandler {
 
     boolean onFailure(InlinedParseState parseState) {
         if (!parseState.isRecovering()) {

@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.recovery.RecoveryType;
 /**
  * 
  */
-class InlinedParseState {
+final class InlinedParseState {
 
     Stack<InlinedBacktrackChoicePoint> backtrackChoicePoints = new Stack<>();
     private InlinedRecoveryJob recoveryJob = null;

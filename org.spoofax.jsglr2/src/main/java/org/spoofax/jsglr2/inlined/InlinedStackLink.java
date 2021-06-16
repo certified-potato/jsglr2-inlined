@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
  * the {@code parseForest} is a simple character node. When the {@code from} node was added via reduction, then
  * the {@code parseForest} is a parse node representing a 'confirmed' reduction.
  */
-public class InlinedStackLink {
+final class InlinedStackLink {
     
     // [init] <-- [to] <--this-- [from]
     final InlinedStackNode from; // Farthest away from initial stack node

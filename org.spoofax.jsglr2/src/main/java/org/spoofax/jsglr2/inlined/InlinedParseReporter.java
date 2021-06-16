@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.parseforest.ParseNodeVisiting;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.recovery.RecoveryMessages;
 
-public class InlinedParseReporter implements IInlinedParseNodeVisitor {
+final class InlinedParseReporter implements IInlinedParseNodeVisitor {
 
     static void report(InlinedParseState parseState, InlinedParseNode parseForest, InlinedParseForestManager manager, List<Message> messages) {
         if(parseState.appliedRecovery()) {

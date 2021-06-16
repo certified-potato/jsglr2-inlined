@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.inlined;
 
 import org.spoofax.jsglr2.parser.Position;
 
-public interface IInlinedParseNodeVisitor {
+interface IInlinedParseNodeVisitor {
 
     
     void postVisit(InlinedParseNode parseNode, Position startPosition, Position endPosition);

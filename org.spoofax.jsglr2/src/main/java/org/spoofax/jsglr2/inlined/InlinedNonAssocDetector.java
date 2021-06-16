@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
-public class InlinedNonAssocDetector implements IInlinedParseNodeVisitor {
+final class InlinedNonAssocDetector implements IInlinedParseNodeVisitor {
 
     private final Collection<Message> messages;
 

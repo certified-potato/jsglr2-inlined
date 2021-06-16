@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.parser.result.ParseResult;
 import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-public class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
+public final class JSGLR2RecoveryInlined implements JSGLR2<IStrategoTerm> {
 
     InlinedParser parser;
     InlinedImploder imploder = new InlinedImploder();

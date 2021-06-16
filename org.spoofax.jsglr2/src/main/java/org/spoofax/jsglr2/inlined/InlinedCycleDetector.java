@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.messages.Message;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
-public class InlinedCycleDetector implements IInlinedParseNodeVisitor {
+final class InlinedCycleDetector implements IInlinedParseNodeVisitor {
     private Collection<Message> messages;
     private ArrayList<InlinedParseNode> spine = new ArrayList<>();
     ParseFailureCause failureCause = null;

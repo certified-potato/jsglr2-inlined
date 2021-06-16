@@ -7,7 +7,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
  * Represents a terminal in a CFG. It is stored in stack links that were added
  * by shifting in new characters from the input.
  */
-class InlinedCharacterNode implements IParseForest {
+final class InlinedCharacterNode implements IParseForest {
     
     /**
      * the unicode code point for the charater to store, or -1 for EOF.

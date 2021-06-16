@@ -22,7 +22,7 @@ import org.spoofax.jsglr2.parser.result.ParseSuccess;
 import org.spoofax.jsglr2.tokens.Tokens;
 import org.spoofax.terms.util.NotImplementedException;
 
-public class InlinedParser implements IParser<IParseForest> {
+public final class InlinedParser implements IParser<IParseForest> {
 
     // public final StatCounter observer = new StatCounter();
     protected final IParseTable parseTable;

@@ -13,7 +13,7 @@ import org.spoofax.jsglr2.parseforest.ICharacterNode;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.parser.Position;
 
-class InlinedParseForestManager {
+final class InlinedParseForestManager {
 
 //    final StatCounter observer;
     final InlinedDisambugator disambiguator = new InlinedDisambugator();

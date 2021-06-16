@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 
 import org.metaborg.parsetable.states.IState;
 
-class InlinedActiveStacks {
+final class InlinedActiveStacks {
 
 //    private final StatCounter counter;
 

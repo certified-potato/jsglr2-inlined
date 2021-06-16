@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.parseforest.IParseForest;
 /**
  * Contains the reduction method.
  */
-public class InlinedReduceManager {
+final class InlinedReduceManager {
 
     private final IParseTable parseTable;
     private final InlinedStackManager stackManager;

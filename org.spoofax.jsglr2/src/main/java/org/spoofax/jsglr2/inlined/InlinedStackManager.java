@@ -6,7 +6,7 @@ import java.util.List;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public class InlinedStackManager {
+final class InlinedStackManager {
 
 //    protected final StatCounter observer;
 //

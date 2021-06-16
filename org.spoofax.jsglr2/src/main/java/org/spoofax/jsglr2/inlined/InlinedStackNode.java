@@ -10,7 +10,7 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 /**
  * Represents an entry in the stack: how much has the parser parsed already, and how it parsed the text.
  */
-public class InlinedStackNode {
+final class InlinedStackNode {
 
     /**
      * The state (cell, entry) of the parse table.

@@ -11,7 +11,7 @@ import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 /**
  * Represents a non-terminal in a CFG.
  */
-class InlinedParseNode implements IParseForest {
+final class InlinedParseNode implements IParseForest {
     private final int width;
     private final IProduction production;
     private InlinedDerivation firstDerivation; //the 'main' derivation rule

@@ -17,7 +17,7 @@ import org.spoofax.jsglr2.parseforest.IParseNode;
 import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.tokens.Tokens;
 
-public class InlinedImploder {
+public final class InlinedImploder {
     private final TokenizedTermTreeFactory treeFactory = new TokenizedTermTreeFactory();
 
     public ImplodeResult<Tokens, Void, IStrategoTerm> implode(JSGLR2Request request, IParseForest parseForest) {

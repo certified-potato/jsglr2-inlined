@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.inlined;
 
 import java.util.ArrayList;
 
-class InlinedBacktrackChoicePoint {
+final class InlinedBacktrackChoicePoint {
     
     private final int offset;
     private final InlinedInputStack inputStack;

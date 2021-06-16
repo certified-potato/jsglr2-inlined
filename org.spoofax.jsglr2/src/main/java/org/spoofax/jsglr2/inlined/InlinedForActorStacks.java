@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-class InlinedForActorStacks {
+final class InlinedForActorStacks {
     
     //private final StatCounter counter;
     

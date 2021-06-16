@@ -3,7 +3,7 @@ package org.spoofax.jsglr2.inlined;
 /**
  * Represents a valid path through the stack graph, represented as a linked list.
  */
-public abstract class InlinedStackPath {
+abstract class InlinedStackPath {
     
     /**
      * Length of the path.

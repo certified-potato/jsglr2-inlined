@@ -4,7 +4,7 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.metaborg.parsetable.productions.ProductionType;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
-class InlinedDerivation {
+final class InlinedDerivation {
     private final IProduction production;
     private final ProductionType productionType;
     private final IParseForest[] parseForests;

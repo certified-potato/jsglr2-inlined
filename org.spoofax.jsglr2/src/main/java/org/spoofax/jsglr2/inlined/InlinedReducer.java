@@ -4,7 +4,7 @@ import org.metaborg.parsetable.actions.IReduce;
 import org.metaborg.parsetable.states.IState;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
-public class InlinedReducer {
+final class InlinedReducer {
 
     private final InlinedStackManager stackManager;
     private final InlinedParseForestManager parseForestManager;

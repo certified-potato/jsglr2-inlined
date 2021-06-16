@@ -2,7 +2,7 @@ package org.spoofax.jsglr2.inlined;
 
 import java.util.HashMap;
 
-public class InlinedRecoveryJob {
+final class InlinedRecoveryJob {
     int offset;
     int iteration;
     int iterationsQuota;

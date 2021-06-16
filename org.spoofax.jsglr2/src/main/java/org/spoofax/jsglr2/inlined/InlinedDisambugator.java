@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.spoofax.jsglr2.parseforest.IParseForest;
 
-class InlinedDisambugator {
+final class InlinedDisambugator {
     void disambiguate(InlinedParseState parseState, InlinedParseNode parseNode) {
         if(parseNode.isAmbiguous() && parseState.isRecovering()) {
             RecoverCost minRecoveryCost = null;

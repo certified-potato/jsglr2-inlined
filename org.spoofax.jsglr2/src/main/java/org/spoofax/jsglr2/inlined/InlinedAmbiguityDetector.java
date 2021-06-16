@@ -8,7 +8,7 @@ import org.spoofax.jsglr2.messages.SourceRegion;
 import org.spoofax.jsglr2.parseforest.ParseNodeVisiting;
 import org.spoofax.jsglr2.parser.Position;
 
-public class InlinedAmbiguityDetector implements IInlinedParseNodeVisitor {
+final class InlinedAmbiguityDetector implements IInlinedParseNodeVisitor {
     private final String inputString;
     private final Collection<Message> messages;
 
@@ -17,7 +17,8 @@ public class InlinedAmbiguityDetector implements IInlinedParseNodeVisitor {
         this.messages = messages;
     }
 
-    @Override public void postVisit(InlinedParseNode parseNode, Position startPosition, Position endPosition) {
+    @Override
+    public void postVisit(InlinedParseNode parseNode, Position startPosition, Position endPosition) {
         if(parseNode.isAmbiguous()) {
             String message;
 
