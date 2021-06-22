@@ -12,7 +12,6 @@ import org.metaborg.parsetable.ParseTableReadException;
 import org.metaborg.parsetable.ParseTableReader;
 import org.spoofax.jsglr2.JSGLR2Request;
 import org.spoofax.jsglr2.inlined.InlinedParser;
-import org.spoofax.jsglr2.inlined.StatCounter;
 import org.spoofax.jsglr2.measure.CSV;
 import org.spoofax.jsglr2.measure.Config;
 import org.spoofax.jsglr2.measure.MeasureTestSetWithParseTableReader;
@@ -68,7 +67,8 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
     private List<Map<ParsingMeasurement, String>> measureInlined(String name, IParseTable parseTable) throws IOException {
     	return testSetReader.getInputBatches().map(inputBatch -> {
             InlinedParser parser = new InlinedParser(parseTable);
-
+            InlinedMeasureObserver observer = new InlinedMeasureObserver();
+            parser.observing.attachObserver(observer);
             try {
                 for(StringInput input : inputBatch.inputs)
                     parser.parse(new JSGLR2Request(input.content, input.fileName, null), null, null);
@@ -77,8 +77,8 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
                 throw new IllegalStateException("Inlined variant measurement failed: "
                     + e.getClass().getSimpleName() + ": " + e.getMessage());
             }
-
-            return toOutputInlined(name, inputBatch, parser.observer);
+                        
+            return toOutputInlined(name, inputBatch, observer);
         }).collect(Collectors.toList());
 	}
     
@@ -239,7 +239,7 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
     }
     
     Map<ParsingMeasurement, String> toOutputInlined(String name,
-            MeasureTestSetWithParseTableReader<String, StringInput>.InputBatch inputBatch, StatCounter counter) {
+            MeasureTestSetWithParseTableReader<String, StringInput>.InputBatch inputBatch, InlinedMeasureObserver observer) {
             return Arrays.stream(ParsingMeasurement.values()).collect(Collectors.toMap(Function.identity(), measurement -> {
                 switch(measurement) {
                     case name:
@@ -247,87 +247,55 @@ public class ParsingMeasurements extends Measurements<String, StringInput> {
                     case size:
                         return "" + inputBatch.size;
                     case characters:
-                        return "" + counter.length;
-                    case activeStacksAdds:
-                        return "" + counter.activeStacksAdds;
-                    case activeStacksMaxSize:
-                        return "" + counter.activeStacksMaxSize;
-                    case activeStacksIsSingleChecks:
-                        return "";
-                    case activeStacksIsEmptyChecks:
-                        return "" + counter.activeStacksIsEmptyChecks;
-                    case activeStacksFindsWithState:
-                    	return "" + counter.activeStacksFindsWithState;
-                    case activeStacksForLimitedReductions:
-                    	return "" + counter.activeStacksForLimitedReductions;
-                    case activeStacksAddAllTo:
-                    	return "" + counter.activeStacksAddAllTo;
-                    case activeStacksClears:
-                    	return "" + counter.activeStacksClears;
-                    case activeStacksIterators:
-                    	return "";
-                    case forActorAdds:
-                    	return "" + counter.forActorAdds;
-                    case forActorDelayedAdds:
-                    	return "" + counter.forActorDelayedAdds;
-                    case forActorMaxSize:
-                    	return "" + counter.forActorMaxSize;
-                    case forActorDelayedMaxSize:
-                    	return "" + counter.forActorDelayedMaxSize;
-                    case forActorContainsChecks:
-                    	return "" + counter.forActorContainsChecks;
-                    case forActorNonEmptyChecks:
-                        return "" + counter.forActorNonEmptyChecks;
+                        return "" + observer.length;
                     case stackNodes:
-                        return "" + counter.stackNodes;
+                        return "" + observer.stackNodes;
                     case stackNodesSingleLink:
-                        return "" + counter.stackNodesSingleLink;
+                        return "" + observer.stackNodesSingleLink;
                     case stackLinks:
-                        return "" + counter.stackLinks;
+                        return "" + observer.stackLinks;
                     case stackLinksRejected:
-                        return "" + counter.stackLinksRejected;
+                        return "" + observer.stackLinksRejected;
                     case deterministicDepthResets:
-                        return "" + counter.deterministicDepthResets;
+                        return "" + observer.deterministicDepthResets;
                     case parseNodes:
-                        return "" + counter.parseNodes;
+                        return "" + observer.parseNodes;
                     case parseNodesAmbiguous:
-                        return "" + counter.parseNodesAmbiguous;
+                        return "" + observer.parseNodesAmbiguous;
                     case parseNodesContextFree:
-                        return "" + counter.parseNodesContextFree;
+                        return "" + observer.parseNodesContextFree;
                     case parseNodesContextFreeAmbiguous:
-                        return "" + counter.parseNodesContextFreeAmbiguous;
+                        return "" + observer.parseNodesContextFreeAmbiguous;
                     case parseNodesLexical:
-                        return "" + counter.parseNodesLexical;
+                        return "" + observer.parseNodesLexical;
                     case parseNodesLexicalAmbiguous:
-                        return "" + counter.parseNodesLexicalAmbiguous;
+                        return "" + observer.parseNodesLexicalAmbiguous;
                     case parseNodesLayout:
-                        return "" + counter.parseNodesLayout;
+                        return "" + observer.parseNodesLayout;
                     case parseNodesLayoutAmbiguous:
-                        return "" + counter.parseNodesLayoutAmbiguous;
+                        return "" + observer.parseNodesLayoutAmbiguous;
                     case parseNodesLiteral:
-                        return "" + counter.parseNodesLiteral;
+                        return "" + observer.parseNodesLiteral;
                     case parseNodesLiteralAmbiguous:
-                        return "" + counter.parseNodesLiteralAmbiguous;
+                        return "" + observer.parseNodesLiteralAmbiguous;
                     case parseNodesSingleDerivation:
-                        return "" + counter.parseNodesSingleDerivation;
+                        return "" + observer.parseNodesSingleDerivation;
                     case characterNodes:
-                        return "" + counter.characterNodes;
+                        return "" + observer.characterNodes;
                     case actors:
-                        return "" + counter.actors;
+                        return "" + observer.actors;
                     case doReductions:
-                        return "" + counter.doReductions;
+                        return "" + observer.doReductions;
                     case doLimitedReductions:
-                        return "" + counter.doLimitedReductions;
+                        return "" + observer.doLimitedReductions;
                     case doReductionsLR:
-                        return "" + counter.doReductionsLR;
+                        return "" + observer.doReductionsLR;
                     case doReductionsDeterministicGLR:
-                        return "" + counter.doReductionsDeterministicGLR;
+                        return "" + observer.doReductionsDeterministicGLR;
                     case doReductionsNonDeterministicGLR:
-                        return "" + counter.doReductionsNonDeterministicGLR;
+                        return "" + observer.doReductionsNonDeterministicGLR;
                     case reducers:
-                        return "" + counter.reducers;
-                    case reducersElkhound:
-                        return "";
+                        return "" + observer.reducers;
                     default:
                         return "";
                 }

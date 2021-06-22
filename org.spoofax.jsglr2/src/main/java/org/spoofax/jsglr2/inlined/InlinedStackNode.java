@@ -42,7 +42,7 @@ public class InlinedStackNode {
         return addLink(link);
     }
 
-    Iterable<InlinedStackLink> getLinks() {
+    public Iterable<InlinedStackLink> getLinks() {
         if (otherLinks == null) {
             return Collections.singleton(firstLink);
         } else {

@@ -8,7 +8,7 @@ import org.metaborg.parsetable.productions.IProduction;
 import org.spoofax.jsglr2.parseforest.IParseForest;
 import org.spoofax.jsglr2.util.iterators.SingleElementWithListIterable;
 
-class InlinedParseNode implements IParseForest {
+public class InlinedParseNode implements IParseForest {
     private final int width;
     private final IProduction production;
     private InlinedDerivation firstDerivation;
@@ -30,7 +30,7 @@ class InlinedParseNode implements IParseForest {
         return width;
     }
 
-    IProduction production() {
+    public IProduction production() {
         return production;
     }
 
@@ -45,7 +45,7 @@ class InlinedParseNode implements IParseForest {
         return firstDerivation != null;
     }
 
-    Iterable<InlinedDerivation> getDerivations() {
+    public Iterable<InlinedDerivation> getDerivations() {
         if(firstDerivation == null)
             return Collections.emptyList();
         if(otherDerivations == null)
@@ -61,7 +61,7 @@ class InlinedParseNode implements IParseForest {
         return firstDerivation;
     }
 
-    boolean isAmbiguous() {
+    public boolean isAmbiguous() {
         return otherDerivations != null;
     }
 

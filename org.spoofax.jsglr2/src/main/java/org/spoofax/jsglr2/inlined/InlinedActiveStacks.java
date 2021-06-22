@@ -8,19 +8,18 @@ import org.metaborg.parsetable.states.IState;
 
 class InlinedActiveStacks{
     
-    private final StatCounter counter;
+    private final InlinedObserving observing;
         
     ArrayList<InlinedStackNode> activeStacks;
     
-    InlinedActiveStacks(StatCounter counter) {
-        this.counter = counter;
+    InlinedActiveStacks(InlinedObserving observing) {
+        this.observing = observing;
         this.activeStacks = new ArrayList<>();
     }
 
     void add(InlinedStackNode stack) {
         activeStacks.add(stack);
-        counter.activeStacksAdds++;
-        counter.activeStacksMaxSize = Math.max(counter.activeStacksMaxSize, activeStacks.size());
+        observing.notify(o -> o.addActiveStack(stack));
     }
 
     InlinedStackNode getSingle() {
@@ -28,12 +27,11 @@ class InlinedActiveStacks{
     }
 
     boolean isEmpty() {
-        counter.activeStacksIsEmptyChecks++;
         return activeStacks.isEmpty();
     }
 
     InlinedStackNode findWithState(IState state) {
-        counter.activeStacksFindsWithState++;
+       observing.notify(o -> o.findActiveStackWithState(state));
         for(InlinedStackNode stack : activeStacks)
             if(stack.state().id() == state.id())
                 return stack;
@@ -42,7 +40,6 @@ class InlinedActiveStacks{
     }
 
     Iterable<InlinedStackNode> forLimitedReductions(InlinedForActorStacks forActorStacks) {
-        counter.activeStacksForLimitedReductions++;
         return () -> new Iterator<InlinedStackNode>() {
 
             int index = 0;
@@ -72,13 +69,11 @@ class InlinedActiveStacks{
     }
 
     void addAllTo(InlinedForActorStacks other) {
-        counter.activeStacksAddAllTo++;
         for(InlinedStackNode stack : activeStacks)
             other.add(stack);
     }
 
     void clear() {
-        counter.activeStacksClears++;
         activeStacks.clear();
     }
 }

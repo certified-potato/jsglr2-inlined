@@ -11,22 +11,22 @@ public class InlinedReduceManager {
     protected final InlinedStackManager stackManager;
     protected final InlinedParseForestManager parseForestManager;
     protected final InlinedReducer reducer;
-    private final StatCounter observer;
+    private final InlinedObserving observing;
 
     public InlinedReduceManager(IParseTable parseTable, InlinedStackManager stackManager,
-            InlinedParseForestManager parseForestManager, StatCounter observer) {
+            InlinedParseForestManager parseForestManager, InlinedObserving observing) {
         this.parseTable = parseTable;
         this.stackManager = stackManager;
         this.parseForestManager = parseForestManager;
         this.reducer = new InlinedReducer(stackManager, parseForestManager);
-        this.observer = observer;
+        this.observing = observing;
     }
 
     public void doReductions(InlinedParseState parseState, InlinedStackNode activeStack, IReduce reduce) {
         if (ignoreReduceAction(parseState, activeStack, reduce))
             return;
 
-        observer.doReductions();
+        observing.notify(o -> o.doReductions(parseState, activeStack, reduce));
 
         doReductionsHelper(parseState, activeStack, reduce, null);
     }
@@ -36,7 +36,7 @@ public class InlinedReduceManager {
         if (ignoreReduceAction(parseState, stack, reduce))
             return;
 
-        observer.doLimitedReductions();
+        observing.notify(o -> o.doLimitedReductions(parseState, stack, reduce, throughLink));
 
         doReductionsHelper(parseState, stack, reduce, throughLink);
     }
@@ -89,7 +89,7 @@ public class InlinedReduceManager {
         if (gotoStack != null) {
             InlinedStackLink directLink = stackManager.findDirectLink(gotoStack, originStack);
 
-            observer.reducers++;
+            observing.notify(o -> o.directLinkFound(parseState, directLink));
             
             if (directLink != null) {
                 reducer.reducerExistingStackWithDirectLink(parseState, reduce, directLink, parseForests);
@@ -110,21 +110,8 @@ public class InlinedReduceManager {
             parseState.activeStacks.add(gotoStack);
             parseState.forActorStacks.add(gotoStack);
         }
-
-        //from recoveryObserver
-        if(parseState.isRecovering()) {
-            int quota = parseState.recoveryJob().getQuota(activeStack);
-
-            if(reduce.production().isRecovery()) {
-                quota--;
-
-                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, parseState.inputStack.offset());
-            } else {
-                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack,
-                    parseState.recoveryJob().lastRecoveredOffset(activeStack));
-            }
-
-            parseState.recoveryJob().updateQuota(gotoStack, quota);
-        }
+        
+        InlinedStackNode fgs = gotoStack;
+        observing.notify(o -> o.reducer(parseState, activeStack, originStack, reduce, parseForests, fgs));
     }
 }

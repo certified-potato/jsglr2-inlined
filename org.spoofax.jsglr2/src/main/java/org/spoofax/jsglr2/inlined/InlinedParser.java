@@ -24,7 +24,7 @@ import org.spoofax.terms.util.NotImplementedException;
 
 public class InlinedParser implements IParser<IParseForest> {
 
-    public final StatCounter observer = new StatCounter();
+    public final InlinedObserving observing = new InlinedObserving();
     protected final IParseTable parseTable;
     protected final InlinedStackManager stackManager;
     protected final InlinedParseForestManager parseForestManager;
@@ -34,17 +34,18 @@ public class InlinedParser implements IParser<IParseForest> {
 
     public InlinedParser(IParseTable table) {
         parseTable = table;
-        stackManager = new InlinedStackManager(observer);
-        parseForestManager = new InlinedParseForestManager(observer);
-        reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager, observer);
-        failureHandler = new InlinedParseFailureHandler();
+        stackManager = new InlinedStackManager(observing);
+        parseForestManager = new InlinedParseForestManager(observing);
+        reduceManager = new InlinedReduceManager(table, stackManager, parseForestManager, observing);
+        failureHandler = new InlinedParseFailureHandler(observing);
+        observing.attachObserver(new InlinedRecoveryObserver());
     }
 
     @Override
     public ParseResult<IParseForest> parse(JSGLR2Request request, String previousInput, IParseForest previousResult) {
-        parseState = new InlinedParseState(request, new InlinedInputStack(request.input), observer);
+        parseState = new InlinedParseState(request, new InlinedInputStack(request.input), observing);
 
-        observer.parseStart(parseState);
+        observing.notify(o -> o.parseStart(parseState));
 
         InlinedStackNode initialStackNode = stackManager.createStackNode(parseTable.getStartState());
 
@@ -109,14 +110,19 @@ public class InlinedParser implements IParser<IParseForest> {
 
             ParseSuccess<IParseForest> success = new ParseSuccess<>(null, parseForest, messages);
 
-            observer.success();
+            observing.notify(o -> o.success(success));
 
             return success;
         }
     }
 
     protected ParseFailure<IParseForest> failure(ParseFailureCause failureCause) {
-        return new ParseFailure<>(null, failureCause);
+        return failure(new ParseFailure<>(null, failureCause));
+    }
+
+    protected ParseFailure<IParseForest> failure(ParseFailure<IParseForest> failure) {
+        observing.notify(observer -> observer.failure(failure));
+        return failure;
     }
 
     protected void parseLoop(InlinedParseState parseState) throws ParseException {
@@ -131,6 +137,7 @@ public class InlinedParser implements IParser<IParseForest> {
         parseState.nextParseRound();
 
         parseState.activeStacks.addAllTo(parseState.forActorStacks);
+        observing.notify(o -> o.forActorStacks(parseState.forActorStacks));
 
         processForActorStacks(parseState);
 
@@ -141,14 +148,18 @@ public class InlinedParser implements IParser<IParseForest> {
         while (parseState.forActorStacks.nonEmpty()) {
             InlinedStackNode stack = parseState.forActorStacks.remove();
 
+            observing.notify(o -> o.handleForActorStack(stack, parseState.forActorStacks));
+
             if (!stack.allLinksRejected())
                 actor(stack, parseState);
+            else
+                observing.notify(o -> o.skipRejectedStack(stack));
         }
     }
 
     protected void actor(InlinedStackNode stack, InlinedParseState parseState) {
-        observer.actor();
-        stack.state().getApplicableActions(parseState.inputStack, parseState.mode);
+        observing.notify(o -> o.actor(stack, parseState,
+                stack.state().getApplicableActions(parseState.inputStack, parseState.mode)));
 
         for (IAction action : stack.state().getApplicableActions(parseState.inputStack, parseState.mode))
             actor(stack, parseState, action);
@@ -172,7 +183,7 @@ public class InlinedParser implements IParser<IParseForest> {
             break;
         case ACCEPT:
             parseState.acceptingStack = stack;
-
+            observing.notify(o -> o.accept(stack));
             break;
         }
     }
@@ -181,6 +192,8 @@ public class InlinedParser implements IParser<IParseForest> {
         parseState.activeStacks.clear();
 
         InlinedCharacterNode characterNode = getNodeToShift(parseState);
+        
+        observing.notify(o -> o.shifter(characterNode, parseState.forShifter));
 
         for (InlinedForShifterElement forShifterElement : parseState.forShifter) {
             InlinedStackNode gotoStack = parseState.activeStacks.findWithState(forShifterElement.state);
@@ -194,15 +207,9 @@ public class InlinedParser implements IParser<IParseForest> {
 
                 parseState.activeStacks.add(gotoStack);
             }
-
-            // from RecoveryObserver
-            if (parseState.isRecovering()) {
-                int quota = parseState.recoveryJob().getQuota(forShifterElement.stack);
-                int lastRecoveredOffset = parseState.recoveryJob().lastRecoveredOffset(forShifterElement.stack);
-
-                parseState.recoveryJob().updateQuota(gotoStack, quota);
-                parseState.recoveryJob().updateLastRecoveredOffset(gotoStack, lastRecoveredOffset);
-            }
+            
+            InlinedStackNode fgs = gotoStack;
+            observing.notify(observer -> observer.shift(parseState, forShifterElement.stack, fgs));
         }
 
         parseState.forShifter.clear();
@@ -213,10 +220,12 @@ public class InlinedParser implements IParser<IParseForest> {
     }
 
     protected void addForShifter(InlinedParseState parseState, InlinedStackNode stack, IState shiftState) {
-        parseState.forShifter.add(new InlinedForShifterElement(stack, shiftState));
+        InlinedForShifterElement el = new InlinedForShifterElement(stack, shiftState);
+        observing.notify(o -> o.addForShifter(el));
+        parseState.forShifter.add(el);
     }
 
     public Collection<Message> postProcessMessages(Collection<Message> messages, Tokens tokens) {
-        return parseState.postProcessMessages(messages, tokens);        
+        return parseState.postProcessMessages(messages, tokens);
     }
 }

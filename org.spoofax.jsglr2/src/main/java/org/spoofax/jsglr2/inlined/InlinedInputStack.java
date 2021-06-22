@@ -9,7 +9,7 @@ import org.spoofax.jsglr2.parser.Position;
 /**
  * Keeps track which character the parser is currently parsing, along the input text
  */
-class InlinedInputStack implements IActionQuery {
+public class InlinedInputStack implements IActionQuery {
     protected final String inputString;
     protected final int inputLength;
     protected int currentOffset = 0;
@@ -41,7 +41,7 @@ class InlinedInputStack implements IActionQuery {
         return currentChar;
     }
     
-    String inputString() {
+    public String inputString() {
         return inputString;
     }
 

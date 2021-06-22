@@ -7,13 +7,13 @@ import java.util.Queue;
 
 class InlinedForActorStacks {
     
-    private final StatCounter counter;
+    private final InlinedObserving observing;
     
     final ArrayDeque<InlinedStackNode> forActor = new ArrayDeque<>();
     final Queue<InlinedStackNode> forActorDelayed;
 
-    InlinedForActorStacks(StatCounter counter) {
-        this.counter = counter;
+    InlinedForActorStacks(InlinedObserving observing) {
+        this.observing = observing;
         
         // TODO: implement priority (see P9707 Section 8.4)
         Comparator<InlinedStackNode> stackNodePriorityComparator = (InlinedStackNode stackNode1,
@@ -23,25 +23,21 @@ class InlinedForActorStacks {
     }
 
     void add(InlinedStackNode stack) {
+        observing.notify(observer -> observer.addForActorStack(stack));
+        
         if (stack.state().isRejectable()) {
             forActorDelayed.add(stack);
-            counter.forActorDelayedAdds++;
         }
         else {
             forActor.add(stack);
-            counter.forActorAdds++;
         }
-        counter.forActorMaxSize = Math.max(counter.forActorMaxSize, forActor.size());
-        counter.forActorDelayedMaxSize = Math.max(counter.forActorDelayedMaxSize, forActorDelayed.size());
     }
 
     boolean contains(InlinedStackNode stack) {
-        counter.forActorContainsChecks++;
         return forActor.contains(stack) || forActorDelayed.contains(stack);
     }
 
     boolean nonEmpty() {
-        counter.forActorNonEmptyChecks++;
         return !forActor.isEmpty() || !forActorDelayed.isEmpty();
     }
 

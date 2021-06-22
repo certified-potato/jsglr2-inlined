@@ -4,13 +4,25 @@ import org.spoofax.jsglr2.parser.Position;
 import org.spoofax.jsglr2.parser.result.ParseFailureCause;
 
 class InlinedParseFailureHandler {
-
+    
+    private final InlinedObserving observing;
+    
+    public InlinedParseFailureHandler(InlinedObserving observing) {
+        this.observing = observing;
+    }
+    
     boolean onFailure(InlinedParseState parseState) {
         if (!parseState.isRecovering()) {
             parseState.startRecovery(parseState.request, parseState.inputStack.offset());
             parseState.setAppliedRecovery();
+            observing.notify(observer -> observer.startRecovery(parseState));
         }
-        return parseState.nextRecoveryIteration();
+        boolean hasNextIteration = parseState.nextRecoveryIteration();
+
+        if(hasNextIteration)
+            observing.notify(o -> o.recoveryIteration(parseState));
+
+        return hasNextIteration;
     }
 
     ParseFailureCause failureCause(InlinedParseState parseState) {
